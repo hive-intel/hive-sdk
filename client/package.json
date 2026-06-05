@@ -80,9 +80,9 @@
   },
   "devDependencies": {
     "@langchain/core": "^1.1.36",
-    "@types/node": "^22.0.0",
+    "@types/node": "^25.9.1",
     "tsup": "8.5.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.5"
   }
 }
