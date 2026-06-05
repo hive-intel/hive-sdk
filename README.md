@@ -79,9 +79,13 @@ claude mcp add --transport http hive https://mcp.hiveintelligence.xyz/mcp \
 }
 ```
 
-### Claude Desktop · Windsurf · Gemini CLI
+### Claude Desktop
 
-Use the same `url` + `headers` block as Cursor. Config locations: Claude Desktop → Settings → Connectors → Add MCP server; Windsurf → `~/.codeium/windsurf/mcp_config.json`; Gemini CLI → `~/.gemini/settings.json`. Full per-client guides: [hiveintelligence.xyz/install](https://hiveintelligence.xyz/install).
+Claude Desktop uses the Custom Connectors UI for remote MCP. Open Settings → Connectors → Add custom connector, set the URL to `https://mcp.hiveintelligence.xyz/mcp`, and add the `Authorization: Bearer hive_live_...` header there. Do not paste a remote `url` + `headers` block into `claude_desktop_config.json`; that file is for local stdio servers.
+
+### Windsurf · Gemini CLI
+
+Use the same `url` + `headers` block as Cursor. Config locations: Windsurf → `~/.codeium/windsurf/mcp_config.json`; Gemini CLI → `~/.gemini/settings.json`. Full per-client guides: [hiveintelligence.xyz/install](https://hiveintelligence.xyz/install).
 
 ### Local stdio (self-host / desktop / your own provider keys)
 
@@ -133,16 +137,16 @@ Alchemy · CoinGecko · DeFiLlama · Moralis · Codex · GoPlus · Helius · Ten
 
 | # | Category | Tools | What's inside |
 |---|----------|-------|---------------|
-| 1 | **Market Data & Price** | 70+ | Prices, OHLCV, market caps, derivatives, funding rates, stablecoins, gainers/losers, exchange tickers |
-| 2 | **On-Chain DEX & Pool** | 57+ | DEX pools, liquidity, trending pairs, swap history, bridges, aggregator volumes |
-| 3 | **Portfolio & Wallet** | 46+ | Balances, PnL, DeFi positions, swap history, NFT holdings, multi-chain history |
-| 4 | **Token & Contract** | 64+ | Token metadata, holders, top traders, ENS resolution, treasury tracking, transfers |
-| 5 | **DeFi Protocol** | 21+ | TVL, fees, yield farming, chain metrics, treasuries, emissions |
-| 6 | **NFT Analytics** | 31+ | Collection data, floors, market charts, NFT pools, trait metadata, sales |
-| 7 | **Security & Risk** | 42+ | Honeypot detection, rugpull checks, approval risk, Tenderly simulation, gas estimation |
-| 8 | **Network & Infrastructure** | 18+ | Chain health, blocks, gas prices, supported networks, Solana infrastructure |
-| 9 | **Search & Discovery** | 11+ | Cross-provider search, trending coins, categories, token discovery |
-| 10 | **Prediction Markets** | 19+ | Polymarket events, traders, outcome prices, trade history, market stats |
+| 1 | **Market Data & Price** | 87 | Prices, OHLCV, market caps, derivatives, funding rates, stablecoins, gainers/losers, exchange tickers |
+| 2 | **On-Chain DEX & Pool** | 52 | DEX pools, liquidity, trending pairs, swap history, bridges, aggregator volumes |
+| 3 | **Portfolio & Wallet** | 40 | Balances, PnL, DeFi positions, swap history, NFT holdings, multi-chain history |
+| 4 | **Token & Contract** | 34 | Token metadata, holders, top traders, ENS resolution, treasury tracking, transfers |
+| 5 | **DeFi Protocol** | 17 | TVL, fees, yield farming, chain metrics, treasuries, emissions |
+| 6 | **NFT Analytics** | 30 | Collection data, floors, market charts, NFT pools, trait metadata, sales |
+| 7 | **Security & Risk** | 29 | Honeypot detection, rugpull checks, approval risk, Tenderly simulation, gas estimation |
+| 8 | **Network & Infrastructure** | 26 | Chain health, blocks, gas prices, supported networks, Solana infrastructure |
+| 9 | **Search & Discovery** | 15 | Cross-provider search, trending coins, categories, token discovery |
+| 10 | **Prediction Markets** | 21 | Polymarket events, traders, outcome prices, trade history, market stats |
 
 Clients that want a smaller, scoped tool surface can connect to a category endpoint directly, e.g. `https://mcp.hiveintelligence.xyz/hive_market_data/mcp` (one per category). Full live list: `https://mcp.hiveintelligence.xyz/api/v1/tools` or [hiveintelligence.xyz/tools/live-catalog](https://hiveintelligence.xyz/tools/live-catalog).
 
@@ -170,7 +174,7 @@ What are the most-traded events on Polymarket this week?
 Simulate this transaction before I sign it: <tx hash or calldata>
 ```
 
-More, by category: [hiveintelligence.xyz/use-cases](https://hiveintelligence.xyz/use-cases).
+More workflow guides: [hiveintelligence.xyz/use-cases](https://hiveintelligence.xyz/use-cases).
 
 ## TypeScript SDK — `hive-mcp-client`
 
