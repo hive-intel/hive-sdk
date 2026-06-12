@@ -83,9 +83,19 @@ function parseAuthScheme(value: string): HiveAuthScheme {
   throw new Error("--auth-scheme must be x-api-key, bearer, or none.");
 }
 
+function parseRequestTimeoutMs(value: string, source: string): number {
+  const timeoutMs = Number(value);
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    throw new Error(
+      `${source} must be a positive finite number of milliseconds.`,
+    );
+  }
+  return timeoutMs;
+}
+
 function parseArgs(
   argv: string[],
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
 ): DoctorConfig | "help" {
   const args = [...argv];
   const command = args[0] && !args[0].startsWith("-") ? args.shift() : "doctor";
@@ -106,7 +116,10 @@ function parseArgs(
     liveSubjectSmoke: false,
     readinessUrl: env.HIVE_B2B_READINESS_URL,
     requestTimeoutMs: env.HIVE_REQUEST_TIMEOUT_MS
-      ? Number(env.HIVE_REQUEST_TIMEOUT_MS)
+      ? parseRequestTimeoutMs(
+          env.HIVE_REQUEST_TIMEOUT_MS,
+          "HIVE_REQUEST_TIMEOUT_MS",
+        )
       : undefined,
     subjectSigningSecret: env.HIVE_SUBJECT_SIGNING_SECRET,
     tenantId: env.HIVE_TENANT_ID,
@@ -163,7 +176,7 @@ function addCheck(
   checks: DoctorCheck[],
   status: DoctorCheckStatus,
   name: string,
-  message: string
+  message: string,
 ): void {
   checks.push({ message, name, status });
 }
@@ -178,7 +191,7 @@ function writeTextResult(
   io: CliIo,
   checks: DoctorCheck[],
   ok: boolean,
-  mode?: string
+  mode?: string,
 ): void {
   io.stdout.write("Hive B2B doctor\n");
   if (mode) {
@@ -188,9 +201,7 @@ function writeTextResult(
     io.stdout.write(`${icon(check.status)} ${check.name}: ${check.message}\n`);
   }
   io.stdout.write(
-    ok
-      ? "OK Hive B2B adapter is ready.\n"
-      : "Hive B2B adapter is not ready.\n"
+    ok ? "OK Hive B2B adapter is ready.\n" : "Hive B2B adapter is not ready.\n",
   );
 }
 
@@ -198,7 +209,7 @@ function writeJsonResult(
   io: CliIo,
   checks: DoctorCheck[],
   ok: boolean,
-  mode?: string
+  mode?: string,
 ): void {
   io.stdout.write(
     `${JSON.stringify(
@@ -208,8 +219,8 @@ function writeJsonResult(
         ok,
       },
       null,
-      2
-    )}\n`
+      2,
+    )}\n`,
   );
 }
 
@@ -234,7 +245,7 @@ async function runLiveSubjectSmoke(config: DoctorConfig): Promise<void> {
           endUserId: config.endUserId ?? "",
           tenantId: config.tenantId ?? "",
         },
-      }
+      },
     );
   } finally {
     await client.close();
@@ -244,7 +255,7 @@ async function runLiveSubjectSmoke(config: DoctorConfig): Promise<void> {
 async function runDoctor(
   config: DoctorConfig,
   io: CliIo,
-  fetchImpl?: typeof fetch
+  fetchImpl?: typeof fetch,
 ): Promise<number> {
   const checks: DoctorCheck[] = [];
   if (!config.apiKey?.trim()) {
@@ -252,7 +263,7 @@ async function runDoctor(
       checks,
       "fail",
       "api_key",
-      "Set HIVE_API_KEY or pass --api-key from a trusted backend environment."
+      "Set HIVE_API_KEY or pass --api-key from a trusted backend environment.",
     );
     if (config.json) {
       writeJsonResult(io, checks, false);
@@ -279,7 +290,7 @@ async function runDoctor(
       "b2b_subjects_enabled",
       readiness.api_key.b2b_subjects_enabled
         ? "The key is configured for downstream subject isolation."
-        : "Enable b2b_subjects_enabled before using one key for many customers."
+        : "Enable b2b_subjects_enabled before using one key for many customers.",
     );
     addCheck(
       checks,
@@ -287,7 +298,7 @@ async function runDoctor(
       "server_signing_secret",
       readiness.api_key.subject_signing_secret_configured
         ? "Hive has a subject signing secret for this key."
-        : "Create or rotate the key so Hive issues a subject signing secret."
+        : "Create or rotate the key so Hive issues a subject signing secret.",
     );
     addCheck(
       checks,
@@ -295,7 +306,8 @@ async function runDoctor(
       "readiness",
       readiness.b2b_adapter_ready
         ? "Readiness endpoint reports the adapter can run in B2B mode."
-        : readiness.warnings.join(" ") || "Readiness endpoint is not B2B-ready."
+        : readiness.warnings.join(" ") ||
+            "Readiness endpoint is not B2B-ready.",
     );
 
     if (!config.subjectSigningSecret?.trim()) {
@@ -303,14 +315,14 @@ async function runDoctor(
         checks,
         "fail",
         "local_signing_secret",
-        "Set HIVE_SUBJECT_SIGNING_SECRET server-side so the adapter can sign subjects."
+        "Set HIVE_SUBJECT_SIGNING_SECRET server-side so the adapter can sign subjects.",
       );
     } else {
       addCheck(
         checks,
         "pass",
         "local_signing_secret",
-        "A local subject signing secret is present."
+        "A local subject signing secret is present.",
       );
     }
 
@@ -330,14 +342,14 @@ async function runDoctor(
         checks,
         "pass",
         "subject_signature",
-        "Signed subject headers can be generated for the MCP endpoint."
+        "Signed subject headers can be generated for the MCP endpoint.",
       );
     } else {
       addCheck(
         checks,
         "warn",
         "subject_signature",
-        "Pass --tenant-id and --end-user-id to verify local subject header signing."
+        "Pass --tenant-id and --end-user-id to verify local subject header signing.",
       );
     }
 
@@ -347,14 +359,14 @@ async function runDoctor(
           checks,
           "fail",
           "live_subject_smoke",
-          "--live-subject-smoke requires --tenant-id and --end-user-id."
+          "--live-subject-smoke requires --tenant-id and --end-user-id.",
         );
       } else if (!config.subjectSigningSecret?.trim()) {
         addCheck(
           checks,
           "fail",
           "live_subject_smoke",
-          "--live-subject-smoke requires HIVE_SUBJECT_SIGNING_SECRET."
+          "--live-subject-smoke requires HIVE_SUBJECT_SIGNING_SECRET.",
         );
       } else {
         await runLiveSubjectSmoke(config);
@@ -362,7 +374,7 @@ async function runDoctor(
           checks,
           "pass",
           "live_subject_smoke",
-          "hive_list_monitors succeeded for the signed subject."
+          "hive_list_monitors succeeded for the signed subject.",
         );
       }
     } else {
@@ -370,7 +382,7 @@ async function runDoctor(
         checks,
         "warn",
         "live_subject_smoke",
-        "Skipped. Add --live-subject-smoke with tenant and end-user ids for an MCP read check."
+        "Skipped. Add --live-subject-smoke with tenant and end-user ids for an MCP read check.",
       );
     }
 
@@ -394,7 +406,7 @@ async function runDoctor(
 }
 
 export async function runHiveMcpCli(
-  options: HiveMcpCliOptions = {}
+  options: HiveMcpCliOptions = {},
 ): Promise<number> {
   const io = options.io ?? {
     stderr: process.stderr,
@@ -403,7 +415,7 @@ export async function runHiveMcpCli(
   try {
     const parsed = parseArgs(
       options.argv ?? process.argv.slice(2),
-      options.env ?? process.env
+      options.env ?? process.env,
     );
     if (parsed === "help") {
       io.stdout.write(usage());

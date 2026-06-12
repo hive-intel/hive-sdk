@@ -58,13 +58,12 @@ function createMockClient(): HiveMcpClient {
       ],
     })),
     listTools: vi.fn(async () => ({
-      tools: [
-        ...HIVE_CORE_TOOL_NAMES,
-        ...HIVE_CATEGORY_TOOL_NAMES,
-      ].map((name) => ({
-        inputSchema: { type: "object" as const },
-        name,
-      })),
+      tools: [...HIVE_CORE_TOOL_NAMES, ...HIVE_CATEGORY_TOOL_NAMES].map(
+        (name) => ({
+          inputSchema: { type: "object" as const },
+          name,
+        }),
+      ),
     })),
     readResource: vi.fn(async ({ uri }) => {
       const payloads: Record<string, unknown> = {
@@ -168,7 +167,7 @@ function readyB2BResponse() {
         timestamp_skew_seconds: 300,
         warnings: [],
       },
-    })
+    }),
   );
 }
 
@@ -179,10 +178,10 @@ describe("hive-mcp-client", () => {
       "x-api-key": "key",
     });
     expect(
-      buildHiveAuthHeaders({ apiKey: "key", authScheme: "bearer" })
+      buildHiveAuthHeaders({ apiKey: "key", authScheme: "bearer" }),
     ).toEqual({ Authorization: "Bearer key" });
     expect(buildHiveAuthHeaders({ apiKey: "key", authScheme: "none" })).toEqual(
-      {}
+      {},
     );
   });
 
@@ -213,7 +212,7 @@ describe("hive-mcp-client", () => {
         signingSecret: "subject-secret",
         tenantId: "tenant-123",
         timestamp: "1760000000",
-      })
+      }),
     ).toEqual({
       "X-Hive-End-User-Id": "user-456",
       "X-Hive-Subject-Signature": signature,
@@ -246,7 +245,7 @@ describe("hive-mcp-client", () => {
         secret: "subject-secret",
         tenantId: "tenant-123",
         timestamp,
-      })
+      }),
     );
   });
 
@@ -314,7 +313,7 @@ describe("hive-mcp-client", () => {
           wallets: ["0xabc"],
         },
       },
-      { subject }
+      { subject },
     );
     expect(callTool).toHaveBeenNthCalledWith(
       2,
@@ -324,7 +323,7 @@ describe("hive-mcp-client", () => {
         name: "Wallet risk",
         target: { addresses: ["0xabc"], chains: ["ethereum"] },
       },
-      { subject }
+      { subject },
     );
     expect(callTool).toHaveBeenNthCalledWith(
       3,
@@ -334,13 +333,13 @@ describe("hive-mcp-client", () => {
         name: "New Base tokens",
         target: { min_liquidity_usd: 100_000, networks: ["base"] },
       },
-      { subject }
+      { subject },
     );
     expect(callTool).toHaveBeenNthCalledWith(
       4,
       "hive_list_alerts",
       { limit: 20, status: "open" },
-      { subject }
+      { subject },
     );
     expect(callTool).toHaveBeenNthCalledWith(
       5,
@@ -350,38 +349,38 @@ describe("hive-mcp-client", () => {
         namespace: "watchlist_digest",
         value: { style: "conservative" },
       },
-      { subject }
+      { subject },
     );
     expect(callTool).toHaveBeenNthCalledWith(
       6,
       "hive_generate_monitor_report",
       { limit: 10, monitor_id: "monitor-123" },
-      { subject }
+      { subject },
     );
     expect(callTool).toHaveBeenNthCalledWith(
       7,
       "hive_update_alert_status",
       { alert_id: "alert-123", status: "acknowledged" },
-      { subject }
+      { subject },
     );
     expect(callTool).toHaveBeenNthCalledWith(
       8,
       "hive_archive_monitor",
       { monitor_id: "monitor-123" },
-      { subject }
+      { subject },
     );
     expect(callTool).toHaveBeenNthCalledWith(
       9,
       "hive_list_subject_audit_events",
       { limit: 5, tool_name: "hive_create_monitor" },
-      { subject }
+      { subject },
     );
   });
 
   test("checks B2B readiness through the REST preflight endpoint", async () => {
     const fetchMock = vi.fn(async (input, init) => {
       expect(String(input)).toBe(
-        "https://mcp.hiveintelligence.xyz/api/v1/b2b/readiness"
+        "https://mcp.hiveintelligence.xyz/api/v1/b2b/readiness",
       );
       const headers = new Headers(init?.headers);
       expect(init?.method).toBe("GET");
@@ -399,7 +398,9 @@ describe("hive-mcp-client", () => {
   });
 
   test("runs the B2B doctor CLI with readiness and local signature checks", async () => {
-    const fetchMock = vi.fn(async () => readyB2BResponse()) as unknown as typeof fetch;
+    const fetchMock = vi.fn(async () =>
+      readyB2BResponse(),
+    ) as unknown as typeof fetch;
     const cli = createCliIo();
 
     const code = await runHiveMcpCli({
@@ -427,7 +428,9 @@ describe("hive-mcp-client", () => {
   });
 
   test("fails the B2B doctor CLI when local subject secret is missing", async () => {
-    const fetchMock = vi.fn(async () => readyB2BResponse()) as unknown as typeof fetch;
+    const fetchMock = vi.fn(async () =>
+      readyB2BResponse(),
+    ) as unknown as typeof fetch;
     const cli = createCliIo();
 
     const code = await runHiveMcpCli({
@@ -440,6 +443,21 @@ describe("hive-mcp-client", () => {
     expect(code).toBe(1);
     expect(cli.stdout()).toContain("FAIL local_signing_secret");
     expect(cli.stdout()).toContain("Hive B2B adapter is not ready.");
+  });
+
+  test("rejects invalid doctor request timeout values", async () => {
+    const cli = createCliIo();
+
+    const code = await runHiveMcpCli({
+      argv: ["doctor"],
+      env: { HIVE_REQUEST_TIMEOUT_MS: "Infinity" },
+      io: cli.io,
+    });
+
+    expect(code).toBe(2);
+    expect(cli.stderr()).toContain(
+      "HIVE_REQUEST_TIMEOUT_MS must be a positive finite number of milliseconds.",
+    );
   });
 
   test("prints B2B doctor errors as JSON when requested", async () => {
@@ -459,24 +477,25 @@ describe("hive-mcp-client", () => {
   });
 
   test("surfaces structured B2B readiness failures", async () => {
-    const fetchMock = vi.fn(async () =>
-      new Response(
-        JSON.stringify({
-          ok: false,
-          error: {
-            code: "INVALID_API_KEY",
-            message: "Invalid API key.",
-          },
-        }),
-        { status: 403 }
-      )
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            ok: false,
+            error: {
+              code: "INVALID_API_KEY",
+              message: "Invalid API key.",
+            },
+          }),
+          { status: 403 },
+        ),
     ) as unknown as typeof fetch;
 
     await expect(
       checkHiveB2BReadiness({
         apiKey: "bad-key",
         fetch: fetchMock,
-      })
+      }),
     ).rejects.toThrow("Invalid API key.");
   });
 
@@ -494,7 +513,7 @@ describe("hive-mcp-client", () => {
     ]);
     expect(stale.ok).toBe(false);
     expect(stale.removedCategoryToolsPresent).toContain(
-      "get_social_sentiment_endpoints"
+      "get_social_sentiment_endpoints",
     );
   });
 
@@ -556,7 +575,7 @@ describe("hive-mcp-client", () => {
       stringifyHiveToolResult({
         content: [{ type: "text", text: "validation failed" }],
         isError: true,
-      })
+      }),
     ).toBe("Error: validation failed");
   });
 
@@ -564,26 +583,28 @@ describe("hive-mcp-client", () => {
     const snapshot = await readHiveMetadataSnapshot(createMockClient(), {
       forceRefresh: true,
     });
-    expect(rankHiveCategoriesForQuery("polymarket odds", snapshot)[0].toolName).toBe(
-      "get_prediction_markets_endpoints"
-    );
+    expect(
+      rankHiveCategoriesForQuery("polymarket odds", snapshot)[0].toolName,
+    ).toBe("get_prediction_markets_endpoints");
     expect(rankHiveCategoriesForQuery("wallet pnl", snapshot)[0].toolName).toBe(
-      "get_portfolio_wallet_endpoints"
+      "get_portfolio_wallet_endpoints",
     );
     expect(
-      rankHiveCategoriesForQuery("is WOJAK safe to buy", snapshot)[0].toolName
+      rankHiveCategoriesForQuery("is WOJAK safe to buy", snapshot)[0].toolName,
     ).toBe("get_security_risk_endpoints");
     expect(
       rankHiveCategoriesForQuery("does this dapp look phishing", snapshot)[0]
-        .toolName
+        .toolName,
     ).toBe("get_security_risk_endpoints");
     expect(
       rankHiveCategoriesForQuery("show profitable wallets on base", snapshot)[0]
-        .toolName
+        .toolName,
     ).toBe("get_portfolio_wallet_endpoints");
     expect(
-      rankHiveCategoriesForQuery("what is the floor price for this NFT", snapshot)[0]
-        .toolName
+      rankHiveCategoriesForQuery(
+        "what is the floor price for this NFT",
+        snapshot,
+      )[0].toolName,
     ).toBe("get_nft_analytics_endpoints");
   });
 
@@ -615,20 +636,20 @@ describe("hive-mcp-client", () => {
     expect(
       normalizeHiveToolCall("get_api_endpoint_schema", {
         endpoint: "get_range_coins_ohlc",
-      })
+      }),
     ).toEqual({
       arguments: { endpoint: "get_coin_ohlc_range" },
       name: "get_api_endpoint_schema",
     });
-    expect(normalizeHiveToolCall("get_simple_price", { ids: "bitcoin" })).toEqual(
-      {
-        arguments: {
-          args: { ids: "bitcoin" },
-          endpoint_name: "get_price",
-        },
-        name: "invoke_api_endpoint",
-      }
-    );
+    expect(
+      normalizeHiveToolCall("get_simple_price", { ids: "bitcoin" }),
+    ).toEqual({
+      arguments: {
+        args: { ids: "bitcoin" },
+        endpoint_name: "get_price",
+      },
+      name: "invoke_api_endpoint",
+    });
     expect(normalizeHiveToolCall("search_tools", { query: "btc" })).toEqual({
       arguments: { query: "btc" },
       name: "search_tools",
@@ -637,14 +658,14 @@ describe("hive-mcp-client", () => {
 
   test("normalizes removed GoldRush endpoint names and arguments", () => {
     expect(resolveHiveEndpointName("goldrush_get_gas_prices")).toBe(
-      "alchemy_get_gas_price"
+      "alchemy_get_gas_price",
     );
     expect(
       normalizeHiveEndpointArgs("goldrush_get_nft_balances", {
         chainName: "matic-mainnet",
         walletAddress: "0x123",
         "no-nft-asset-metadata": true,
-      })
+      }),
     ).toEqual({
       address: "0x123",
       network: "polygon-mainnet",
@@ -653,7 +674,7 @@ describe("hive-mcp-client", () => {
     expect(
       normalizeHiveToolCall("goldrush_get_gas_prices", {
         chainName: "optimism-mainnet",
-      })
+      }),
     ).toEqual({
       arguments: {
         args: { network: "opt-mainnet" },
@@ -668,7 +689,7 @@ describe("hive-mcp-client", () => {
           chainName: "arbitrum-mainnet",
           walletAddress: "0xabc",
         },
-      })
+      }),
     ).toEqual({
       arguments: {
         args: {
@@ -696,7 +717,7 @@ describe("hive-mcp-client", () => {
       selectHiveMcpToolDefinitions({
         definitions,
         selectionMode: "core",
-      }).tools.map((tool) => tool.name)
+      }).tools.map((tool) => tool.name),
     ).toEqual([...HIVE_CORE_TOOL_NAMES]);
 
     const allNames = selectHiveMcpToolDefinitions({
@@ -729,7 +750,7 @@ describe("hive-mcp-client", () => {
     const client = {
       listTools: vi.fn(async () => definitions),
       toolsFromDefinitions: vi.fn((selected: typeof definitions) =>
-        Object.fromEntries(selected.tools.map((tool) => [tool.name, tool]))
+        Object.fromEntries(selected.tools.map((tool) => [tool.name, tool])),
       ),
     };
 
@@ -742,7 +763,7 @@ describe("hive-mcp-client", () => {
 
     expect(client.listTools).toHaveBeenCalledTimes(1);
     expect(client.toolsFromDefinitions).toHaveBeenCalledWith(
-      prepared.definitions
+      prepared.definitions,
     );
     expect(prepared.definitions.tools.map((tool) => tool.name)).toEqual([
       ...HIVE_CORE_TOOL_NAMES,
@@ -765,7 +786,7 @@ describe("hive-mcp-client", () => {
     const client = {
       listTools: vi.fn(async () => definitions),
       toolsFromDefinitions: vi.fn((selected: typeof definitions) =>
-        Object.fromEntries(selected.tools.map((tool) => [tool.name, tool]))
+        Object.fromEntries(selected.tools.map((tool) => [tool.name, tool])),
       ),
     };
 
