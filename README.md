@@ -4,7 +4,7 @@
 
 **Managed crypto market infrastructure for AI agents.**
 
-One hosted MCP server. [369 live tools](https://mcp.hiveintelligence.xyz/api/v1/tools). 10 categories. 9 data providers — [Alchemy, CoinGecko, DeFiLlama, Moralis, Codex, GoPlus, Helius, Tenderly, and CCXT](#powered-by) normalized into a single agent-ready surface, so your agent gets prices, DeFi, wallets, security, and DEX flows through one API key instead of separate provider credentials.
+One hosted MCP server. [369 live tools](https://www.hiveintelligence.xyz/tools/live-catalog). 10 categories. 9 data providers — [Alchemy, CoinGecko, DeFiLlama, Moralis, Codex, GoPlus, Helius, Tenderly, and CCXT](#powered-by) normalized into a single agent-ready surface, so your agent gets prices, DeFi, wallets, security, and DEX flows through one API key instead of separate provider credentials.
 
 [![MCP](https://img.shields.io/badge/MCP-compatible-111827.svg)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -148,7 +148,7 @@ Alchemy · CoinGecko · DeFiLlama · Moralis · Codex · GoPlus · Helius · Ten
 | 9 | **Search & Discovery** | 15 | Cross-provider search, trending coins, categories, token discovery |
 | 10 | **Prediction Markets** | 21 | Polymarket events, traders, outcome prices, trade history, market stats |
 
-Clients that want a smaller, scoped tool surface can connect to a category endpoint directly, e.g. `https://mcp.hiveintelligence.xyz/hive_market_data/mcp` (one per category). Full live list: `https://mcp.hiveintelligence.xyz/api/v1/tools` or [hiveintelligence.xyz/tools/live-catalog](https://hiveintelligence.xyz/tools/live-catalog).
+Clients that want a smaller, scoped tool surface can connect to a category endpoint directly, e.g. `https://mcp.hiveintelligence.xyz/hive_market_data/mcp` (one per category). Public catalog overview: [hiveintelligence.xyz/tools/live-catalog](https://hiveintelligence.xyz/tools/live-catalog). Authenticated REST catalog: `https://mcp.hiveintelligence.xyz/api/v1/tools`.
 
 ## Security & trust
 
@@ -242,12 +242,12 @@ Global flags include `--json`, `--pretty`, `--jq <expr>`, `--csv`, `--fields`, `
 
 | Plan | Monthly credits | Rate limit | API keys | Price |
 |------|-----------------|------------|----------|-------|
-| **Demo** | 10,000 | 30 req/min | 1 | Free |
+| **Demo** | 10,000 | 30 req/min | 5 | Free |
 | **Analyst** | 500,000 | 500 req/min | 10 | $129/mo |
 | **Pro** | 2,000,000 | 1,000 req/min | 25 | $499/mo |
-| **Enterprise** | Custom | 3,000 req/min | 100 | Custom |
+| **Enterprise** | Custom | Custom req/min | Custom | Custom |
 
-One credit = one tool call, regardless of provider or response size. Discovery calls (`tools/list`, `GET /api/v1/tools`) are free. Full pricing: [hiveintelligence.xyz/pricing](https://hiveintelligence.xyz/pricing) · machine-readable: [hiveintelligence.xyz/pricing.md](https://hiveintelligence.xyz/pricing.md).
+One credit = one tool call, regardless of provider or response size. Discovery calls (`tools/list`, authenticated `GET /api/v1/tools`) are free. Full pricing: [hiveintelligence.xyz/pricing](https://hiveintelligence.xyz/pricing) · machine-readable: [hiveintelligence.xyz/pricing.md](https://hiveintelligence.xyz/pricing.md).
 
 ## Why Hive over a single-provider MCP?
 
