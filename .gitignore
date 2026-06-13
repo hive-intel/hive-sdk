@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+client/node_modules/
+
+# Build output
+dist/
+client/dist/
+
+# Lockfiles (this is a published library; consumers resolve their own)
+client/package-lock.json
+client/pnpm-lock.yaml
+client/bun.lock
+
+# Logs / OS
+*.log
+.DS_Store

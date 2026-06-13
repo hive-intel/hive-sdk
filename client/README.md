@@ -210,14 +210,14 @@ const hive = await createHiveMcpClient({
 });
 
 const matches = await searchHiveTools(hive, {
-  query: "wallet approvals risk",
+  query: "token security risk",
   limit: 10,
 });
 
-const schema = await getHiveEndpointSchema(hive, "get_address_risk");
-const response = await invokeHiveEndpoint(hive, "get_address_risk", {
-  address: "0x...",
-  chain: "eth",
+const schema = await getHiveEndpointSchema(hive, "get_token_security");
+const response = await invokeHiveEndpoint(hive, "get_token_security", {
+  chainId: "1",
+  contract_addresses: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
 });
 
 const metadata = await readHiveMetadataSnapshot(hive);
