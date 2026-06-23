@@ -1,0 +1,52 @@
+name: Publish hive-mcp-client
+
+# Publishes the hive-mcp-client SDK (client/) to npm using npm OIDC
+# "Trusted Publishing" — no NPM_TOKEN needed. Configure the trusted publisher
+# on the hive-mcp-client npm package: GitHub Actions / hive-intel / hive-sdk /
+# publish.yml.
+#
+# To cut a release: bump the version in client/package.json, commit, then push
+# a matching tag, e.g.  git tag v0.1.6 && git push origin v0.1.6
+# (or run this workflow manually via "Run workflow").
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required for npm OIDC trusted publishing
+
+jobs:
+  publish:
+    name: Build, test, and publish to npm
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Upgrade npm (trusted publishing needs >= 11.5.1)
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Publish to npm (OIDC trusted publishing, with provenance)
+        run: npm publish
