@@ -2,10 +2,7 @@
   "mcpServers": {
     "hive": {
       "type": "http",
-      "url": "https://mcp.hiveintelligence.xyz/mcp",
-      "headers": {
-        "Authorization": "Bearer ${HIVE_API_KEY}"
-      }
+      "url": "https://mcp.hiveintelligence.xyz/mcp"
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "hive-mcp-client",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Typed client adapter for Hive Intelligence MCP root discovery, metadata, schema lookup, and endpoint invocation.",
   "type": "module",
   "license": "MIT",
@@ -60,15 +60,15 @@
     "package.json"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "prepack": "npm run build",
     "pack:check": "npm pack --dry-run"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.29.0",
-    "zod": "^4.3.6"
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "@langchain/core": ">=1.0.0"
@@ -79,10 +79,16 @@
     }
   },
   "devDependencies": {
-    "@langchain/core": "^1.1.36",
-    "@types/node": "^25.9.1",
+    "@langchain/core": "^1.2.2",
+    "@types/node": "^24.13.3",
     "tsup": "8.5.1",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

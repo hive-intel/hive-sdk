@@ -48,6 +48,7 @@ signing without printing either secret.
 import {
   createHiveMcpClient,
   invokeHiveEndpoint,
+  verifyHiveExecutionDigests,
 } from "hive-mcp-client";
 
 const hive = await createHiveMcpClient({
@@ -56,10 +57,15 @@ const hive = await createHiveMcpClient({
 });
 
 try {
-  const result = await invokeHiveEndpoint(hive, "get_price", {
+  const args = {
     ids: "bitcoin",
     vs_currencies: "usd",
-  });
+  };
+  const result = await invokeHiveEndpoint(hive, "get_price", args);
+
+  if (!result.receipt) throw new Error("Hive receipt missing");
+  const integrity = verifyHiveExecutionDigests(result.receipt, args, result);
+  if (!integrity.valid) throw new Error("Hive receipt digest mismatch");
 
   console.log(result.json ?? result.text);
 } finally {
@@ -68,9 +74,35 @@ try {
 ```
 
 `searchHiveTools`, `getHiveEndpointSchema`, and `invokeHiveEndpoint` already
-return normalized results with `isError`, `json`, `text`, `raw`, and optional
-`structuredContent`. Use `normalizeHiveToolResult` only when you call
-`client.callTool()` directly.
+return normalized results with `isError`, `json`, `text`, `raw`, optional
+`structuredContent`, and a typed `receipt` when the response contains a valid
+server-returned `_hive` block. The receipt includes provider/freshness/runtime
+context plus server/build identity and SHA-256 input/result self-checks; those
+digests are not signatures. `verifyHiveInputDigest`, `verifyHiveResultDigest`,
+and `verifyHiveExecutionDigests` recompute them with Hive's canonical JSON
+rules. Pass the exact endpoint arguments and the full normalized result; result
+verification excludes only the server-added top-level `_hive` block. The
+helpers detect mutation in material you received, but do not authenticate Hive
+or prove that a receipt was retained server-side. `invokeHiveEndpoint` is
+read-only and rejects known Hive state changes. Use `normalizeHiveToolResult`
+only when you call `client.callTool()` directly.
+
+For durable Hive state, show the exact effect to the user, obtain approval in a
+trusted application control, and then call the explicitly named helper:
+
+```ts
+import { invokeHiveStatefulEndpoint } from "hive-mcp-client";
+
+if (!(await approvalUi.confirm({ endpointName, args }))) {
+  throw new Error("User declined the Hive state change");
+}
+
+const saved = await invokeHiveStatefulEndpoint(hive, endpointName, args);
+```
+
+Do not let the model set an `approved` argument or infer consent from the
+prompt. The explicit helper validates that the endpoint is a known Hive-native
+stateful write and routes it through `invoke_stateful_endpoint`.
 
 Never pass a full Hive API key to browser code. Browser UI should call your own
 server route, and that route should use this package.
@@ -123,11 +155,14 @@ await hive.callTool(
 );
 ```
 
-The adapter signs `X-Hive-Tenant-Id`, `X-Hive-End-User-Id`,
-`X-Hive-Subject-Timestamp`, and `X-Hive-Subject-Signature` for the MCP request.
-Hive stores state under the authenticated Hive account plus the resolved
-subject, so monitors, memory, alerts, and reports stay isolated per downstream
-customer.
+The request-scoped adapter signs `X-Hive-Tenant-Id`,
+`X-Hive-End-User-Id`, `X-Hive-Subject-Timestamp`,
+`X-Hive-Subject-Body-Sha256` when a request body is available, and
+`X-Hive-Subject-Signature` for the MCP request. Use
+`buildHiveSubjectBodyDigest()` with `buildHiveSubjectHeaders()` when manually
+signing stateful writes. Hive stores state under the authenticated Hive account
+plus the resolved subject, so monitors, memory, alerts, and reports stay
+isolated per downstream customer.
 
 ## B2B Product Adapter
 
@@ -189,11 +224,13 @@ The adapter intentionally covers the common B2B product actions:
 watchlist digests, risk watches, token discovery risk, alerts, reports, and
 memory facts, plus monitor cleanup and subject audit reads for support. Use
 `callForSubject()` when you need an advanced Hive tool that does not have a
-convenience wrapper yet.
+convenience wrapper yet. Monitor, memory, alert-status, and subject mutation
+helpers change durable Hive state; gate them behind the same trusted user
+approval UI as `invokeHiveStatefulEndpoint`.
 
 ## Discovery Flow
 
-Hive root MCP exposes a compact tool surface. Discover the task first, inspect
+Hive root MCP exposes only the five-tool workflow surface. Discover the task first, inspect
 the exact schema, then invoke the endpoint:
 
 ```ts
@@ -224,9 +261,35 @@ const metadata = await readHiveMetadataSnapshot(hive);
 await hive.close();
 ```
 
-Preserve `_hive`, `meta`, provider, source, freshness, cache, and runtime status
-fields in your own response model. Do not silently strip these fields before
-showing data to a user or downstream agent.
+`search_tools` returns at most three compact workflow candidates by default
+and paginates tools/toolsets separately. Once the app chooses a workflow, read
+only its exact resource, for example:
+
+```ts
+const toolset = await hive.readResource({
+  uri: "hive://toolsets/token_diligence",
+});
+```
+
+The exact resource contains the output schema, material-call budget, phases,
+fallback condition, and stop conditions. Before presenting a typed workflow
+result, call `validate_task_result` with the selected toolset id and envelope;
+copy every `receipt.calls` entry exactly from the corresponding server-returned
+`_hive` block. Validation checks structure and consistency but cannot make an
+invented receipt authentic.
+
+Search, schema lookup, task-result validation, `tools/list`,
+and resource reads cost zero Hive credits. Material endpoint executions cost
+one credit each.
+
+Preserve `_hive`, `meta`, provider, source recency, cache, and runtime status
+fields in your own response model. `source` reports the delivery state;
+`origin_source` retains `live` versus `fallback` when that response is later
+served from cache. `observed_at` is Hive's
+first-observation/original cache-population time; `cache_age_ms: 0` only means
+newly retrieved by Hive. Use provider time/block/slot/transaction/candle close
+for upstream recency, and mark it unknown when absent. Do not silently strip
+these fields before showing data to a user or downstream agent.
 
 ## Next.js Route Example
 
@@ -260,16 +323,15 @@ const hive = await createHiveMcpClient({
   apiKey: process.env.HIVE_API_KEY,
   connectTimeoutMs: 18_000,
   requestTimeoutMs: 22_000,
-  retry: {
-    attempts: 2,
-    baseDelayMs: 500,
-  },
 });
 ```
 
-The client retries MCP tool calls with exponential backoff. Treat invalid
-schemas, missing keys, and user input errors as non-retryable in your own app
-logic.
+The client does not automatically retry tool calls. A timeout has an unknown
+server-side outcome, so launching a second call can duplicate writes and spend
+another credit. Verify state before retrying writes; monitor-creation helpers
+include a stable `idempotency_key`, which you can also provide explicitly when
+you need a distinct retry identity. Material stateful invocations are never
+adapter-cached.
 
 ## Metadata And Sources
 
@@ -330,11 +392,18 @@ const tools = createHiveLangChainTools({
   clientOptions: {
     apiKey: process.env.HIVE_API_KEY,
   },
+  approveStatefulCall: async ({ endpointName, args }) => {
+    return approvalUi.confirm({ endpointName, args });
+  },
 });
 ```
 
 The LangChain bridge creates tools over the compact Hive root surface and uses
-Hive discovery helpers for endpoint invocation.
+Hive discovery helpers for endpoint invocation. The stateful tool is disabled
+when `approveStatefulCall` is absent. The callback must return a real user's
+explicit approval from a trusted application control; never implement it as
+`async () => true`, derive it from model output, or hide it in tool arguments.
+Stateful invocations bypass the adapter response cache even after approval.
 
 ## REST Fallback
 

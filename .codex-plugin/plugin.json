@@ -1,0 +1,47 @@
+{
+  "name": "hive-sdk",
+  "version": "1.3.0",
+  "description": "One hosted MCP connection and bundled workflows for evidence-backed crypto due diligence, with sources, freshness, and runtime receipts.",
+  "author": {
+    "name": "Hive Intelligence",
+    "email": "support@hiveintelligence.xyz",
+    "url": "https://www.hiveintelligence.xyz"
+  },
+  "homepage": "https://www.hiveintelligence.xyz/install",
+  "repository": "https://github.com/hive-intel/hive-sdk",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "crypto",
+    "blockchain",
+    "defi",
+    "wallet-intelligence",
+    "token-security",
+    "market-data",
+    "due-diligence"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Hive Intelligence",
+    "shortDescription": "Evidence-backed crypto due diligence for agents.",
+    "longDescription": "Connect ChatGPT and Codex to Hive's hosted crypto intelligence MCP and route live research through bounded workflows for markets, tokens, wallets, DeFi, DEX pools, NFTs, Solana, network data, security, and prediction markets. Material calls return provider provenance, freshness context, runtime status, and receipts. Hive-native state changes remain separately routed and require explicit user approval.",
+    "developerName": "Hive Intelligence",
+    "category": "Finance",
+    "capabilities": [
+      "Remote MCP",
+      "Crypto research",
+      "Evidence receipts",
+      "Stateful monitoring"
+    ],
+    "websiteURL": "https://www.hiveintelligence.xyz",
+    "privacyPolicyURL": "https://www.hiveintelligence.xyz/privacy-policy",
+    "termsOfServiceURL": "https://www.hiveintelligence.xyz/terms",
+    "defaultPrompt": [
+      "Run evidence-backed diligence on this token: identity, liquidity, holders, and risk.",
+      "Investigate this wallet across chains and cite every material Hive receipt.",
+      "Compare BTC, ETH, and SOL liquidity and market risk using fresh sources."
+    ],
+    "brandColor": "#F26B3A"
+  }
+}

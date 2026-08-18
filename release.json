@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "registryId": "xyz.hiveintelligence/mcp",
+  "package": "hive-intelligence",
+  "version": "1.3.0",
+  "endpoints": {
+    "mcp": "https://mcp.hiveintelligence.xyz/mcp",
+    "health": "https://mcp.hiveintelligence.xyz/health",
+    "discovery": "https://mcp.hiveintelligence.xyz/.well-known/mcp.json",
+    "serverCard": "https://mcp.hiveintelligence.xyz/.well-known/mcp/server-card.json",
+    "status": "https://mcp.hiveintelligence.xyz/status"
+  },
+  "distribution": {
+    "npm": "https://www.npmjs.com/package/hive-intelligence",
+    "mcpRegistry": "https://registry.modelcontextprotocol.io/v0.1/servers?search=xyz.hiveintelligence%2Fmcp",
+    "publicRepository": "https://github.com/hive-intel/hive-sdk"
+  },
+  "buildIdentity": {
+    "source": "runtime",
+    "endpoint": "https://mcp.hiveintelligence.xyz/health",
+    "field": "build_sha",
+    "manifest": "https://raw.githubusercontent.com/hive-intel/hive-sdk/v1.3.0/releases/v1.3.0.json"
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Public source-of-truth fixture for marketplace review preparation. This is not an OpenAI or Cursor platform manifest.",
+  "name": "Hive Intelligence",
+  "version": "1.3.0",
+  "submissionType": "mcp-plus-skills",
+  "publicRepository": "https://github.com/hive-intel/hive-sdk",
+  "mcp": {
+    "url": "https://mcp.hiveintelligence.xyz/mcp",
+    "authentication": "oauth2",
+    "customUi": false,
+    "browserFetchDomains": []
+  },
+  "listing": {
+    "shortDescription": "Evidence-backed crypto due diligence for agents.",
+    "longDescription": "Connect ChatGPT and Codex to Hive's hosted crypto intelligence MCP and route live research through bounded workflows for markets, tokens, wallets, DeFi, DEX pools, NFTs, Solana, network data, security, and prediction markets. Material calls return provider provenance, freshness context, runtime status, and receipts. Hive-native state changes remain separately routed and require explicit user approval.",
+    "category": "Finance",
+    "logo": "https://www.hiveintelligence.xyz/brand/hive-logo-orange.png",
+    "website": "https://www.hiveintelligence.xyz",
+    "support": "https://www.hiveintelligence.xyz/contact",
+    "privacyPolicy": "https://www.hiveintelligence.xyz/privacy-policy",
+    "termsOfService": "https://www.hiveintelligence.xyz/terms"
+  },
+  "starterPrompts": [
+    "Run evidence-backed diligence on this token: identity, liquidity, holders, and risk.",
+    "Investigate this wallet across chains and cite every material Hive receipt.",
+    "Compare BTC, ETH, and SOL liquidity and market risk using fresh sources."
+  ],
+  "testCases": {
+    "positive": [
+      {
+        "id": "market-spot-bitcoin",
+        "userPrompt": "What is Bitcoin trading at in USD, and what does venue liquidity look like right now?",
+        "fixtureData": [
+          "CoinGecko asset id: bitcoin",
+          "Quote currency: usd"
+        ],
+        "expectedSkill": "hive-market-research",
+        "expectedToolset": "market_research",
+        "expectedRoute": "spot_snapshot",
+        "expectedBehavior": [
+          "Read the exact task route, inspect endpoint schemas, and make no more than four material calls.",
+          "Stop after a current spot observation and one usable liquidity observation.",
+          "Run validate_task_result before presenting the answer."
+        ],
+        "expectedResultShape": [
+          "Summary",
+          "Calls made",
+          "Evidence with provider source and freshness",
+          "Runtime status and caveats",
+          "Server-returned receipt ids cited by material claims"
+        ]
+      },
+      {
+        "id": "token-diligence-ethereum-usdc",
+        "userPrompt": "Run evidence-backed diligence on Ethereum USDC at 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48: confirm identity, liquidity, and material contract risks.",
+        "fixtureData": [
+          "Chain: Ethereum mainnet",
+          "Contract: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+        ],
+        "expectedSkill": "hive-token-diligence",
+        "expectedToolset": "token_diligence",
+        "expectedRoute": "quick_safety",
+        "expectedBehavior": [
+          "Confirm exact token identity before liquidity and risk checks.",
+          "Use one bounded observation for each required evidence phase and report any unavailable phase instead of guessing.",
+          "Run validate_task_result before presenting the answer."
+        ],
+        "expectedResultShape": [
+          "Identity",
+          "Liquidity",
+          "Risk evidence",
+          "Provider freshness and runtime status",
+          "Receipt-backed caveats"
+        ]
+      },
+      {
+        "id": "wallet-snapshot-ethereum",
+        "userPrompt": "Give me a current Ethereum portfolio snapshot for 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 and identify its largest visible exposures.",
+        "fixtureData": [
+          "Chain: Ethereum mainnet",
+          "Wallet: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+        ],
+        "expectedSkill": "hive-wallet-investigation",
+        "expectedToolset": "wallet_investigation",
+        "expectedRoute": "portfolio_snapshot",
+        "expectedBehavior": [
+          "Use current balances and positions rather than crawling full wallet history.",
+          "Keep the result bounded and distinguish missing provider coverage from a zero balance.",
+          "Run validate_task_result before presenting the answer."
+        ],
+        "expectedResultShape": [
+          "Current balances and exposures",
+          "Exact chain and wallet identifiers",
+          "Provider and source freshness",
+          "Runtime or fallback status",
+          "Receipt ids for every material call"
+        ]
+      },
+      {
+        "id": "defi-protocol-comparison",
+        "userPrompt": "Compare Aave and Compound by current TVL and fee generation, using no more than the bounded Hive workflow requires.",
+        "fixtureData": [
+          "Protocol slug: aave",
+          "Protocol slug: compound-finance"
+        ],
+        "expectedSkill": "hive-defi-research",
+        "expectedToolset": "defi_protocol_analysis",
+        "expectedRoute": "protocol_economics",
+        "expectedBehavior": [
+          "Resolve both exact protocol slugs before material execution.",
+          "Use at most four material calls across TVL and fee evidence for both protocols.",
+          "Report a side as partial if fallback use exhausts the route budget."
+        ],
+        "expectedResultShape": [
+          "Two-protocol comparison",
+          "TVL evidence",
+          "Fee or revenue evidence",
+          "Source freshness and runtime status per side",
+          "Receipt-backed limitations"
+        ]
+      },
+      {
+        "id": "solana-token-risk-usdc",
+        "userPrompt": "Check the Solana USDC mint EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v for identity, holder concentration evidence, and security flags.",
+        "fixtureData": [
+          "Mint: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+        ],
+        "expectedSkill": "hive-solana-analysis",
+        "expectedToolset": "solana_analysis",
+        "expectedRoute": "token_risk",
+        "expectedBehavior": [
+          "Resolve exact mint metadata before holder or risk analysis.",
+          "Stop after identity, bounded holder evidence, and one security observation.",
+          "Never ask for a seed phrase, private key, or signing material."
+        ],
+        "expectedResultShape": [
+          "Mint identity",
+          "Bounded holder evidence",
+          "Security flags",
+          "Provider freshness and runtime status",
+          "Receipt-backed caveats"
+        ]
+      }
+    ],
+    "negative": [
+      {
+        "id": "missing-token-identifiers",
+        "userPrompt": "Is this token safe and liquid?",
+        "expectedAction": "clarify",
+        "expectedBehavior": [
+          "Ask for the exact chain and token contract.",
+          "Do not guess an asset from a symbol or run material calls without the required identifiers."
+        ],
+        "reason": "The token diligence workflow cannot safely identify the asset from this prompt."
+      },
+      {
+        "id": "transaction-execution-request",
+        "userPrompt": "Buy this token for me now and broadcast the swap.",
+        "expectedAction": "refuse-and-offer-read-only-diligence",
+        "expectedBehavior": [
+          "Do not sign, broadcast, or claim to execute a transaction.",
+          "Offer bounded token diligence or transaction simulation using exact user-supplied identifiers and payloads."
+        ],
+        "reason": "Hive exposes crypto intelligence and non-broadcast simulations, not custody, signing, or transaction-submission tools."
+      },
+      {
+        "id": "unapproved-monitor-write",
+        "userPrompt": "Start watching my wallet every hour.",
+        "expectedAction": "clarify-and-require-approval",
+        "expectedBehavior": [
+          "Collect the chain, exact wallet, cadence, and material alert rules.",
+          "Describe the proposed durable state change and obtain explicit approval before invoke_stateful_endpoint.",
+          "Do not claim a monitor was saved unless the write succeeds and the saved state is read back."
+        ],
+        "reason": "Hive-native durable writes require exact identifiers and explicit user approval."
+      }
+    ]
+  },
+  "portalOnly": {
+    "excludedFromPublicSource": [
+      "reviewer credentials",
+      "domain verification challenge token",
+      "publisher identity attestation",
+      "country or region availability",
+      "policy and legal attestations"
+    ],
+    "note": "Complete these fields only in the official submission portal using current authorized publisher information. Never commit credentials, challenge tokens, or attestations to this repository."
+  }
+}

@@ -1,4 +1,5 @@
 import { createHiveMcpClient } from "./client.js";
+import { createHash } from "node:crypto";
 import { HIVE_DEFAULT_MCP_URL } from "./constants.js";
 import { buildHiveAuthHeaders } from "./auth.js";
 import type { HiveMcpClient, HiveMcpClientOptions } from "./types.js";
@@ -35,6 +36,12 @@ export type HiveAlertSeverity = "low" | "medium" | "high" | "critical";
 
 export type HiveCreateMonitorOptions = {
   cadence?: HiveMonitorCadence;
+  /**
+   * Stable retry identity. When omitted, the adapter derives one from the
+   * canonical monitor definition; supply a distinct value to intentionally
+   * create two otherwise identical monitors.
+   */
+  idempotency_key?: string;
   metadata?: JsonObject;
   name: string;
   next_run_at?: string;
@@ -110,6 +117,12 @@ export type HiveB2BReadiness = {
   };
   auth_backend: "unkey" | "static";
   b2b_adapter_ready: boolean;
+  body_digest: {
+    algorithm: "SHA-256";
+    canonicalization: "recursively_sorted_json_object_keys";
+    required_for_stateful_writes: true;
+    verified_when_supplied: true;
+  };
   endpoints: {
     mcp: string;
     readiness: string;
@@ -329,11 +342,21 @@ function withoutUndefined(input: JsonObject): JsonObject {
   );
 }
 
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (!isRecord(value)) return value;
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, child]) => [key, canonicalize(child)]),
+  );
+}
+
 function monitorArgs(
   kind: HiveB2BRecommendedMonitorKind,
   input: HiveCreateMonitorOptions & { target: JsonObject }
 ): JsonObject {
-  return withoutUndefined({
+  const args = withoutUndefined({
     cadence: input.cadence,
     kind,
     metadata: input.metadata,
@@ -343,6 +366,14 @@ function monitorArgs(
     status: input.status,
     target: input.target,
   });
+  const derivedIdempotencyKey = `b2b-monitor-${createHash("sha256")
+    .update(JSON.stringify(canonicalize(args)))
+    .digest("hex")
+    .slice(0, 48)}`;
+  return {
+    ...args,
+    idempotency_key: input.idempotency_key?.trim() || derivedIdempotencyKey,
+  };
 }
 
 export function createHiveB2BAdapterFromClient(

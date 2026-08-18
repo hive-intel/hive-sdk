@@ -5,16 +5,12 @@ import {
 } from "./constants.js";
 
 const REQUIRED_ROOT_TOOL_NAMES = new Set<string>(HIVE_CORE_TOOL_NAMES);
-const CURRENT_CATEGORY_TOOL_NAMES = new Set<string>(HIVE_CATEGORY_TOOL_NAMES);
 const REMOVED_CATEGORY_TOOL_NAMES = new Set<string>(
   HIVE_REMOVED_CATEGORY_TOOL_NAMES
 );
 
 export function isHiveCurrentRootToolName(toolName: string): boolean {
-  return (
-    REQUIRED_ROOT_TOOL_NAMES.has(toolName) ||
-    CURRENT_CATEGORY_TOOL_NAMES.has(toolName)
-  );
+  return REQUIRED_ROOT_TOOL_NAMES.has(toolName);
 }
 
 export function isRemovedHiveCategoryToolName(toolName: string): boolean {
@@ -43,7 +39,6 @@ export function inspectHiveRootContract(toolNames: Iterable<string>) {
     missingCoreTools,
     ok:
       missingCoreTools.length === 0 &&
-      missingCategoryTools.length === 0 &&
       removedCategoryToolsPresent.length === 0,
     removedCategoryToolsPresent,
   };
