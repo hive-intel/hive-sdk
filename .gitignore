@@ -14,3 +14,18 @@ client/bun.lock
 # Logs / OS
 *.log
 .DS_Store
+
+# Required reproducible input for the npm OIDC client release
+!client/package-lock.json
+
+# Required public agent plugin bundles
+!.claude-plugin/
+!.claude-plugin/**
+!.codex-plugin/
+!.codex-plugin/**
+!.cursor-plugin/
+!.cursor-plugin/**
+!gemini-extension.json
+!marketplace-review.json
+!skills/
+!skills/**

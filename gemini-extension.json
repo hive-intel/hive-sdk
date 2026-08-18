@@ -1,12 +1,10 @@
 {
-  "name": "hive-mcp-server",
-  "version": "1.0.0",
+  "name": "hive-sdk",
+  "version": "1.3.0",
+  "description": "Evidence-backed crypto due diligence with sources, freshness, and runtime receipts.",
   "mcpServers": {
     "hive": {
-      "url": "https://mcp.hiveintelligence.xyz/mcp",
-      "headers": {
-        "Authorization": "Bearer ${HIVE_API_KEY}"
-      }
+      "httpUrl": "https://mcp.hiveintelligence.xyz/mcp"
     }
   }
 }

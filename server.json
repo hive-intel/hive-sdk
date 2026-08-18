@@ -1,13 +1,14 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "xyz.hiveintelligence/mcp",
-  "description": "Agent-facing crypto intelligence MCP — 369 callable tools across market data, DeFi, wallets, security, DEX, NFTs, Solana, network infrastructure, and prediction markets.",
-  "version": "1.1.4",
+  "title": "Hive Intelligence MCP",
+  "description": "Evidence-backed crypto due diligence with sources, freshness, and a runtime receipt on every call.",
   "repository": {
     "url": "https://github.com/hive-intel/hive-sdk",
     "source": "github"
   },
   "websiteUrl": "https://hiveintelligence.xyz",
+  "version": "1.3.0",
   "remotes": [
     {
       "type": "streamable-http",
@@ -15,10 +16,111 @@
       "headers": [
         {
           "name": "Authorization",
-          "description": "Hive API key as a Bearer token.",
-          "isRequired": true,
-          "isSecret": true,
-          "placeholder": "Bearer hive_your_api_key"
+          "description": "Optional Bearer Hive API key for headless remote MCP access; interactive clients should use OAuth discovery",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "X-API-Key",
+          "description": "Optional legacy Hive API key header for headless remote MCP access",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "hive-intelligence",
+      "version": "1.3.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "COINGECKO_PRO_API_KEY",
+          "description": "CoinGecko Pro API key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "ALCHEMY_API_KEY",
+          "description": "Alchemy API key (EVM wallet, token, NFT, transfer, simulation, gas, and RPC data)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "CODEX_API_KEY",
+          "description": "Codex GraphQL API key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "GOPLUS_APP_KEY",
+          "description": "GoPlus application key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "GOPLUS_APP_SECRET",
+          "description": "GoPlus application secret",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "HELIUS_API_KEY",
+          "description": "Helius API key (Solana RPC, Digital Asset Standard (DAS), priority fees)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "MORALIS_API_KEY",
+          "description": "Moralis API key (EVM wallet, token, NFT analytics)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "TENDERLY_API_KEY",
+          "description": "Tenderly API key (EVM simulation, tracing, gas estimation)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "TENDERLY_NODE_ACCESS_KEY",
+          "description": "Tenderly Node access key (EVM RPC and historical state queries)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "TENDERLY_GATEWAY_ACCESS_KEY",
+          "description": "Legacy alias for the Tenderly Node access key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "TENDERLY_ACCOUNT_SLUG",
+          "description": "Tenderly account slug for project-scoped API calls",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        },
+        {
+          "name": "TENDERLY_PROJECT_SLUG",
+          "description": "Tenderly project slug for project-scoped API calls",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
         }
       ]
     }

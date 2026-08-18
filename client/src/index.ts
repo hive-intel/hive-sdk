@@ -6,6 +6,7 @@ export * from "./constants.js";
 export * from "./contract.js";
 export * from "./discovery.js";
 export * from "./metadata.js";
+export * from "./receipt-integrity.js";
 export * from "./result.js";
 export * from "./subject.js";
 export * from "./sources.js";

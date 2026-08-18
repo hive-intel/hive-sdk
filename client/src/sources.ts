@@ -31,6 +31,10 @@ function normalized(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+const PROVIDER_ENDPOINT_ALIASES: Readonly<Record<string, readonly string[]>> = {
+  "Open Data Fetch": ["fetch"],
+};
+
 function providerNames(snapshot?: HiveMetadataSnapshot | null): string[] {
   const resource = snapshot?.resources["hive://providers"] as
     | ProviderResource
@@ -68,9 +72,12 @@ export function inferHiveProvider(
     return catalogMatch.provider;
   }
   const endpoint = normalized(endpointName);
-  return providerNames(snapshot).find((provider) =>
-    endpoint.includes(normalized(provider))
-  );
+  return providerNames(snapshot).find((provider) => {
+    if (endpoint.includes(normalized(provider))) return true;
+    return (PROVIDER_ENDPOINT_ALIASES[provider] ?? []).some((alias) =>
+      endpoint.startsWith(normalized(alias))
+    );
+  });
 }
 
 export function inferHiveCategory(
@@ -97,7 +104,7 @@ export function extractHiveSources({
   toolName: string;
 }): HiveSource[] {
   const endpoint =
-    toolName === "invoke_api_endpoint"
+    toolName === "invoke_api_endpoint" || toolName === "invoke_stateful_endpoint"
       ? typeof args?.endpoint_name === "string"
         ? args.endpoint_name
         : typeof args?.endpoint === "string"

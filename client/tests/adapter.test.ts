@@ -7,17 +7,25 @@ import {
 import { runHiveMcpCli } from "../src/cli.js";
 import {
   buildHiveAuthHeaders,
+  buildHiveSubjectBodyDigest,
   buildHiveSubjectHeaders,
   buildHiveSubjectSignaturePayload,
+  canonicalizeHiveJson,
   checkHiveB2BReadiness,
   createHiveB2BAdapterFromClient,
+  digestHiveCanonicalJson,
   extractHiveSources,
   getHiveEndpointSchema,
   HIVE_CATEGORY_TOOL_NAMES,
   HIVE_CORE_TOOL_NAMES,
   HIVE_DEFAULT_MCP_URL,
+  HIVE_MCP_CLIENT_VERSION,
+  HIVE_PROVIDER_NAMES,
+  HIVE_STATEFUL_WRITE_ENDPOINT_NAMES,
+  inferHiveProvider,
   inspectHiveRootContract,
   invokeHiveEndpoint,
+  invokeHiveStatefulEndpoint,
   normalizeHiveEndpointArgs,
   normalizeHiveToolResult,
   normalizeHiveToolCall,
@@ -29,8 +37,13 @@ import {
   signHiveSubjectHeaders,
   stableHiveCacheKey,
   stringifyHiveToolResult,
+  verifyHiveExecutionDigests,
+  verifyHiveInputDigest,
+  verifyHiveResultDigest,
+  type HiveExecutionReceipt,
   type HiveMcpClient,
 } from "../src/index.js";
+import packageJson from "../package.json" with { type: "json" };
 
 function createMockClient(): HiveMcpClient {
   const client: HiveMcpClient = {
@@ -57,11 +70,9 @@ function createMockClient(): HiveMcpClient {
         { name: "status", uri: "hive://status" },
       ],
     })),
+    listResourceTemplates: vi.fn(async () => ({ resourceTemplates: [] })),
     listTools: vi.fn(async () => ({
-      tools: [
-        ...HIVE_CORE_TOOL_NAMES,
-        ...HIVE_CATEGORY_TOOL_NAMES,
-      ].map((name) => ({
+      tools: HIVE_CORE_TOOL_NAMES.map((name) => ({
         inputSchema: { type: "object" as const },
         name,
       })),
@@ -104,6 +115,10 @@ function createMockClient(): HiveMcpClient {
   };
   return client;
 }
+
+test("keeps the advertised client version aligned with the package", () => {
+  expect(HIVE_MCP_CLIENT_VERSION).toBe(packageJson.version);
+});
 
 function createCliIo() {
   let stdout = "";
@@ -184,6 +199,13 @@ describe("hive-mcp-client", () => {
     expect(buildHiveAuthHeaders({ apiKey: "key", authScheme: "none" })).toEqual(
       {}
     );
+    expect(HIVE_PROVIDER_NAMES).toEqual(
+      expect.arrayContaining(["Hyperliquid", "Open Data Fetch"])
+    );
+    expect(inferHiveProvider("hyperliquid_get_funding_history")).toBe(
+      "Hyperliquid"
+    );
+    expect(inferHiveProvider("fetch_public_api")).toBe("Open Data Fetch");
   });
 
   test("builds signed B2B subject headers for partner adapters", () => {
@@ -220,6 +242,32 @@ describe("hive-mcp-client", () => {
       "X-Hive-Subject-Timestamp": "1760000000",
       "X-Hive-Tenant-Id": "tenant-123",
     });
+
+    const bodyDigest = buildHiveSubjectBodyDigest({
+      method: "tools/call",
+      params: { arguments: { b: 2, a: 1 } },
+    });
+    const signedWithBody = buildHiveSubjectHeaders({
+      bodyDigest,
+      endUserId: "user-456",
+      method: "POST",
+      path: "/mcp",
+      signingSecret: "subject-secret",
+      tenantId: "tenant-123",
+      timestamp: "1760000000",
+    });
+    expect(signedWithBody["X-Hive-Subject-Body-Sha256"]).toBe(bodyDigest);
+    expect(signedWithBody["X-Hive-Subject-Signature"]).toBe(
+      signHiveSubjectHeaders({
+        bodyDigest,
+        endUserId: "user-456",
+        method: "POST",
+        path: "/mcp",
+        secret: "subject-secret",
+        tenantId: "tenant-123",
+        timestamp: "1760000000",
+      })
+    );
   });
 
   test("adds signed B2B subject headers to AI SDK transport config", () => {
@@ -260,6 +308,7 @@ describe("hive-mcp-client", () => {
       getPrompt: vi.fn(async () => ({ messages: [] })),
       listPrompts: vi.fn(async () => ({ prompts: [] })),
       listResources: vi.fn(async () => ({ resources: [] })),
+      listResourceTemplates: vi.fn(async () => ({ resourceTemplates: [] })),
       listTools: vi.fn(async () => ({ tools: [] })),
       readResource: vi.fn(async () => ({ contents: [] })),
       withSubject: vi.fn(() => client),
@@ -309,6 +358,9 @@ describe("hive-mcp-client", () => {
         kind: "watchlist_digest",
         metadata: { destination: "in_app" },
         name: "Daily watchlist brief",
+        idempotency_key: expect.stringMatching(
+          /^b2b-monitor-[a-f0-9]{48}$/,
+        ),
         target: {
           tokens: ["bitcoin"],
           wallets: ["0xabc"],
@@ -322,6 +374,9 @@ describe("hive-mcp-client", () => {
       {
         kind: "risk_watch",
         name: "Wallet risk",
+        idempotency_key: expect.stringMatching(
+          /^b2b-monitor-[a-f0-9]{48}$/,
+        ),
         target: { addresses: ["0xabc"], chains: ["ethereum"] },
       },
       { subject }
@@ -332,6 +387,9 @@ describe("hive-mcp-client", () => {
       {
         kind: "token_discovery_risk",
         name: "New Base tokens",
+        idempotency_key: expect.stringMatching(
+          /^b2b-monitor-[a-f0-9]{48}$/,
+        ),
         target: { min_liquidity_usd: 100_000, networks: ["base"] },
       },
       { subject }
@@ -375,6 +433,35 @@ describe("hive-mcp-client", () => {
       "hive_list_subject_audit_events",
       { limit: 5, tool_name: "hive_create_monitor" },
       { subject }
+    );
+  });
+
+  test("derives a stable monitor idempotency key and honors an override", async () => {
+    const callTool = vi.fn(async () => ({ content: [] }));
+    const client = {
+      ...createMockClient(),
+      callTool: callTool as unknown as HiveMcpClient["callTool"],
+    };
+    const adapter = createHiveB2BAdapterFromClient(client);
+    const subject = { endUserId: "user-456", tenantId: "tenant-123" };
+    const input = {
+      name: "Stable risk watch",
+      target: { addresses: ["0xabc"] },
+    };
+
+    await adapter.createRiskWatchMonitor(subject, input);
+    await adapter.createRiskWatchMonitor(subject, input);
+    await adapter.createRiskWatchMonitor(subject, {
+      ...input,
+      idempotency_key: "customer-retry-123",
+    });
+
+    const firstKey = callTool.mock.calls[0]?.[1]?.idempotency_key;
+    const secondKey = callTool.mock.calls[1]?.[1]?.idempotency_key;
+    expect(firstKey).toMatch(/^b2b-monitor-[a-f0-9]{48}$/);
+    expect(secondKey).toBe(firstKey);
+    expect(callTool.mock.calls[2]?.[1]?.idempotency_key).toBe(
+      "customer-retry-123",
     );
   });
 
@@ -481,15 +568,19 @@ describe("hive-mcp-client", () => {
   });
 
   test("inspects the current root contract and rejects removed categories", () => {
-    const ok = inspectHiveRootContract([
+    const ok = inspectHiveRootContract([...HIVE_CORE_TOOL_NAMES]);
+    expect(ok.ok).toBe(true);
+    expect(ok.missingCategoryTools).toEqual([...HIVE_CATEGORY_TOOL_NAMES]);
+
+    const legacy = inspectHiveRootContract([
       ...HIVE_CORE_TOOL_NAMES,
       ...HIVE_CATEGORY_TOOL_NAMES,
     ]);
-    expect(ok.ok).toBe(true);
+    expect(legacy.ok).toBe(true);
+    expect(legacy.availableCategoryTools).toEqual([...HIVE_CATEGORY_TOOL_NAMES]);
 
     const stale = inspectHiveRootContract([
       ...HIVE_CORE_TOOL_NAMES,
-      ...HIVE_CATEGORY_TOOL_NAMES,
       "get_social_sentiment_endpoints",
     ]);
     expect(stale.ok).toBe(false);
@@ -540,12 +631,41 @@ describe("hive-mcp-client", () => {
   });
 
   test("normalizes text, JSON, structured content, and errors", () => {
+    const receipt = {
+      build_sha: null,
+      cache_age_ms: 0,
+      cache_status: "miss",
+      category: "Market Data and Price",
+      digest_algorithm: "sha256",
+      duration_ms: 12,
+      fetched_at: "2026-07-12T00:00:00.000Z",
+      input_digest: "a".repeat(64),
+      observed_at: "2026-07-12T00:00:00.000Z",
+      provider: "CoinGecko",
+      receipt_id: "3da6c390-e9a1-4b36-8ec3-1d58c17fcb5b",
+      receipt_version: "1.0",
+      result_digest: "b".repeat(64),
+      runtime_status: "ok",
+      server_version: "1.3.0",
+      source: "live",
+      origin_source: "live",
+      tool: "get_price",
+      truncated: false,
+      warnings: [],
+    };
     const structured = normalizeHiveToolResult({
       content: [{ type: "text", text: '{"fallback":true}' }],
-      structuredContent: { price: 100 },
+      structuredContent: { price: 100, _hive: receipt },
     });
-    expect(structured.structuredContent).toEqual({ price: 100 });
-    expect(structured.json).toEqual({ price: 100 });
+    expect(structured.structuredContent).toEqual({ price: 100, _hive: receipt });
+    expect(structured.json).toEqual({ price: 100, _hive: receipt });
+    expect(structured.receipt).toEqual(receipt);
+
+    const { origin_source: _originSource, ...legacyReceipt } = receipt;
+    const legacy = normalizeHiveToolResult({
+      structuredContent: { price: 100, _hive: legacyReceipt },
+    });
+    expect(legacy.receipt?.origin_source).toBe("live");
 
     const error = normalizeHiveToolResult({
       content: [{ type: "text", text: "Error: nope" }],
@@ -558,6 +678,84 @@ describe("hive-mcp-client", () => {
         isError: true,
       })
     ).toBe("Error: validation failed");
+  });
+
+  test("verifies receipt digests across key order and detects tampering", () => {
+    const args = {
+      ids: "bitcoin",
+      nested: { alpha: 1, beta: 2 },
+      vs_currencies: "usd",
+    };
+    const payload = {
+      price: { change_24h: 1.25, usd: 105_000 },
+      sources: ["CoinGecko"],
+    };
+    const receipt: HiveExecutionReceipt = {
+      build_sha: null,
+      cache_age_ms: 0,
+      cache_status: "miss",
+      category: "Market Data and Price",
+      digest_algorithm: "sha256",
+      duration_ms: 12,
+      fetched_at: "2026-07-12T00:00:00.000Z",
+      input_digest: digestHiveCanonicalJson(args),
+      observed_at: "2026-07-12T00:00:00.000Z",
+      provider: "CoinGecko",
+      receipt_id: "3da6c390-e9a1-4b36-8ec3-1d58c17fcb5b",
+      receipt_version: "1.0",
+      result_digest: digestHiveCanonicalJson(payload),
+      runtime_status: "ok",
+      server_version: "1.3.0",
+      source: "live",
+      origin_source: "live",
+      tool: "get_price",
+      truncated: false,
+      warnings: [],
+    };
+    const normalized = {
+      isError: false,
+      json: { sources: ["CoinGecko"], price: payload.price, _hive: receipt },
+      raw: {},
+      text: "",
+    };
+
+    expect(
+      canonicalizeHiveJson({ z: 1, nested: { z: 2, a: 1 }, a: 2 }),
+    ).toBe('{"a":2,"nested":{"a":1,"z":2},"z":1}');
+    expect(
+      verifyHiveInputDigest(receipt, {
+        vs_currencies: "usd",
+        nested: { beta: 2, alpha: 1 },
+        ids: "bitcoin",
+      }).valid,
+    ).toBe(true);
+    expect(verifyHiveResultDigest(receipt, normalized).valid).toBe(true);
+    expect(
+      verifyHiveExecutionDigests(receipt, args, normalized).valid,
+    ).toBe(true);
+
+    expect(
+      verifyHiveInputDigest(receipt, { ...args, ids: "ethereum" }).valid,
+    ).toBe(false);
+    expect(
+      verifyHiveResultDigest(receipt, {
+        ...normalized,
+        json: {
+          ...payload,
+          price: { ...payload.price, usd: 1 },
+          _hive: receipt,
+        },
+      }).valid,
+    ).toBe(false);
+    expect(
+      verifyHiveResultDigest(receipt, {
+        ...normalized,
+        json: {
+          ...payload,
+          _hive: { ...receipt, receipt_id: "tampered-metadata-is-excluded" },
+        },
+      }).valid,
+    ).toBe(true);
   });
 
   test("ranks categories from runtime metadata and fallback keywords", async () => {
@@ -594,9 +792,23 @@ describe("hive-mcp-client", () => {
     const invoke = await invokeHiveEndpoint(client, "get_price", {
       ids: "bitcoin",
     });
+    const explicitStatefulInvoke = await invokeHiveStatefulEndpoint(
+      client,
+      "hive_archive_monitor",
+      { monitor_id: "monitor-123" }
+    );
     expect(search.json).toEqual({ name: "search_tools", ok: true });
     expect(schema.json).toEqual({ name: "get_api_endpoint_schema", ok: true });
     expect(invoke.json).toEqual({ name: "invoke_api_endpoint", ok: true });
+    expect(explicitStatefulInvoke.json).toEqual({
+      name: "invoke_stateful_endpoint",
+      ok: true,
+    });
+    await expect(
+      invokeHiveEndpoint(client, "hive_create_monitor", {
+        name: "Watch BTC",
+      })
+    ).rejects.toThrow("Obtain explicit user approval");
 
     const snapshot = await readHiveMetadataSnapshot(client, {
       resourceUris: ["hive://providers", "hive://categories", "hive://status"],
@@ -633,6 +845,26 @@ describe("hive-mcp-client", () => {
       arguments: { query: "btc" },
       name: "search_tools",
     });
+    expect(
+      normalizeHiveToolCall("hive_create_monitor", { name: "Watch BTC" })
+    ).toEqual({
+      arguments: {
+        args: { name: "Watch BTC" },
+        endpoint_name: "hive_create_monitor",
+      },
+      name: "invoke_stateful_endpoint",
+    });
+    expect(HIVE_STATEFUL_WRITE_ENDPOINT_NAMES).toContain(
+      "hive_create_monitor"
+    );
+  });
+
+  test("rejects read-only endpoints through the explicit stateful helper", async () => {
+    await expect(
+      invokeHiveStatefulEndpoint(createMockClient(), "get_price", {
+        ids: "bitcoin",
+      })
+    ).rejects.toThrow("is not a known Hive stateful write endpoint");
   });
 
   test("normalizes removed GoldRush endpoint names and arguments", () => {

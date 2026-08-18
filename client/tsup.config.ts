@@ -10,7 +10,9 @@ export default defineConfig({
   },
   outDir: "dist",
   format: ["esm"],
-  dts: true,
+  // tsup's declaration bundler currently crashes under TypeScript 7. Emit
+  // standards-compliant declarations with tsc after the JavaScript build.
+  dts: false,
   // Disabled for publishable artifacts; .js.map files embed original source via
   // sourcesContent. Type declarations (dts) still ship; maps do not.
   sourcemap: false,

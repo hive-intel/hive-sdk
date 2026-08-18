@@ -1,6 +1,7 @@
 import {
   HIVE_CATEGORY_TOOL_NAMES,
   HIVE_CORE_TOOL_NAMES,
+  HIVE_STATEFUL_WRITE_ENDPOINT_NAMES,
   type HiveCategoryToolName,
 } from "./constants.js";
 import { normalizeHiveToolResult } from "./result.js";
@@ -321,7 +322,7 @@ export function normalizeHiveToolCall(
     };
   }
 
-  if (name === "invoke_api_endpoint") {
+  if (name === "invoke_api_endpoint" || name === "invoke_stateful_endpoint") {
     const endpointName = args.endpoint_name;
     const endpointArgs = args.args;
     return {
@@ -346,10 +347,16 @@ export function normalizeHiveToolCall(
     return { name, arguments: args };
   }
 
+  const resolvedName = resolveHiveEndpointName(name);
+  const invoker = (
+    HIVE_STATEFUL_WRITE_ENDPOINT_NAMES as readonly string[]
+  ).includes(resolvedName)
+    ? "invoke_stateful_endpoint"
+    : "invoke_api_endpoint";
   return {
-    name: "invoke_api_endpoint",
+    name: invoker,
     arguments: {
-      endpoint_name: resolveHiveEndpointName(name),
+      endpoint_name: resolvedName,
       args: normalizeHiveEndpointArgs(name, args),
     },
   };
@@ -562,11 +569,47 @@ export async function invokeHiveEndpoint(
   endpointName: string,
   args: Record<string, unknown> = {}
 ) {
+  const resolvedName = resolveHiveEndpointName(endpointName);
+  if (
+    (HIVE_STATEFUL_WRITE_ENDPOINT_NAMES as readonly string[]).includes(
+      resolvedName
+    )
+  ) {
+    throw new Error(
+      `Endpoint '${resolvedName}' changes durable Hive state. Obtain explicit user approval, then call invokeHiveStatefulEndpoint().`
+    );
+  }
   return normalizeHiveToolResult(
     await client.callTool({
       name: "invoke_api_endpoint",
       arguments: {
-        endpoint_name: resolveHiveEndpointName(endpointName),
+        endpoint_name: resolvedName,
+        args: normalizeHiveEndpointArgs(endpointName, args),
+      },
+    })
+  );
+}
+
+export async function invokeHiveStatefulEndpoint(
+  client: HiveMcpClient,
+  endpointName: string,
+  args: Record<string, unknown> = {}
+) {
+  const resolvedName = resolveHiveEndpointName(endpointName);
+  if (
+    !(HIVE_STATEFUL_WRITE_ENDPOINT_NAMES as readonly string[]).includes(
+      resolvedName
+    )
+  ) {
+    throw new Error(
+      `Endpoint '${resolvedName}' is not a known Hive stateful write endpoint.`
+    );
+  }
+  return normalizeHiveToolResult(
+    await client.callTool({
+      name: "invoke_stateful_endpoint",
+      arguments: {
+        endpoint_name: resolvedName,
         args: normalizeHiveEndpointArgs(endpointName, args),
       },
     })

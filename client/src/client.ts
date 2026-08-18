@@ -5,12 +5,17 @@ import type {
   GetPromptResult,
   ListPromptsResult,
   ListResourcesResult,
+  ListResourceTemplatesResult,
   ListToolsResult,
   ReadResourceResult,
 } from "@modelcontextprotocol/sdk/types.js";
 import { buildHiveAuthHeaders } from "./auth.js";
-import { HIVE_DEFAULT_MCP_URL } from "./constants.js";
 import {
+  HIVE_DEFAULT_MCP_URL,
+  HIVE_MCP_CLIENT_VERSION,
+} from "./constants.js";
+import {
+  buildHiveSubjectBodyDigest,
   buildHiveSubjectHeaders,
   type HiveSubjectContext,
 } from "./subject.js";
@@ -19,25 +24,11 @@ import type {
   HiveCallToolArgs,
   HiveMcpClient,
   HiveMcpClientOptions,
-  HiveMcpRetryOptions,
 } from "./types.js";
+import { normalizeHiveToolCall } from "./discovery.js";
 
 const DEFAULT_CONNECT_TIMEOUT_MS = 18_000;
 const DEFAULT_REQUEST_TIMEOUT_MS = 22_000;
-const DEFAULT_RETRY_ATTEMPTS = 2;
-const DEFAULT_RETRY_BASE_DELAY_MS = 500;
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function retryAttempts(retry: HiveMcpRetryOptions | undefined): number {
-  return Math.max(0, retry?.attempts ?? DEFAULT_RETRY_ATTEMPTS);
-}
-
-function retryBaseDelayMs(retry: HiveMcpRetryOptions | undefined): number {
-  return Math.max(0, retry?.baseDelayMs ?? DEFAULT_RETRY_BASE_DELAY_MS);
-}
 
 type SubjectRuntime = {
   path: string;
@@ -79,6 +70,38 @@ function mergeHeaders(
   return headers;
 }
 
+function parseBodyForDigest(body: unknown): unknown {
+  if (typeof body === "string") {
+    try {
+      return JSON.parse(body);
+    } catch {
+      return body;
+    }
+  }
+  if (body instanceof URLSearchParams) return body.toString();
+  if (body instanceof ArrayBuffer) {
+    return new TextDecoder().decode(body);
+  }
+  if (ArrayBuffer.isView(body)) {
+    return new TextDecoder().decode(body);
+  }
+  return body;
+}
+
+async function buildFetchBodyDigest(
+  input: RequestInfo | URL,
+  init: RequestInit | undefined,
+): Promise<string | undefined> {
+  if (init?.body !== undefined && init.body !== null) {
+    return buildHiveSubjectBodyDigest(parseBodyForDigest(init.body));
+  }
+  if (input instanceof Request) {
+    const text = await input.clone().text();
+    if (text) return buildHiveSubjectBodyDigest(parseBodyForDigest(text));
+  }
+  return undefined;
+}
+
 function createSubjectAwareFetch({
   fetchImpl,
   runtime,
@@ -95,7 +118,9 @@ function createSubjectAwareFetch({
     const method =
       init?.method ??
       (input instanceof Request && input.method ? input.method : "POST");
+    const bodyDigest = await buildFetchBodyDigest(input, init);
     const subjectHeaders = buildHiveSubjectHeaders({
+      bodyDigest,
       endUserId: subject.endUserId,
       method,
       path: runtime.path,
@@ -133,7 +158,7 @@ class HiveMcpClientImpl implements HiveMcpClient {
   constructor(
     private readonly client: Client,
     private readonly options: Required<
-      Pick<HiveMcpClientOptions, "requestTimeoutMs" | "retry">
+      Pick<HiveMcpClientOptions, "requestTimeoutMs">
     >,
     private readonly subjectRuntime: SubjectRuntime,
     private readonly defaultSubject?: HiveSubjectContext
@@ -152,6 +177,14 @@ class HiveMcpClientImpl implements HiveMcpClient {
       this.client.listResources(),
       this.options.requestTimeoutMs,
       "Hive MCP listResources"
+    );
+  }
+
+  async listResourceTemplates(): Promise<ListResourceTemplatesResult> {
+    return withTimeout(
+      this.client.listResourceTemplates(),
+      this.options.requestTimeoutMs,
+      "Hive MCP listResourceTemplates"
     );
   }
 
@@ -189,31 +222,29 @@ class HiveMcpClientImpl implements HiveMcpClient {
   ): Promise<unknown> {
     const normalized = normalizeCallToolArgs(argsOrName, args, options);
     const callSubject = normalized.subject ?? this.defaultSubject;
-    const maxAttempts = retryAttempts(this.options.retry);
-    const baseDelayMs = retryBaseDelayMs(this.options.retry);
-    let lastError: Error | undefined;
+    const isCompactRoot =
+      this.subjectRuntime.path.replace(/\/+$/, "") === "/mcp";
+    const routed = isCompactRoot
+      ? normalizeHiveToolCall(
+          normalized.args.name,
+          normalized.args.arguments ?? {},
+        )
+      : normalized.args;
 
     const execute = async () => {
-      for (let attempt = 0; attempt <= maxAttempts; attempt++) {
-        try {
-          return await withTimeout(
-            this.client.callTool({
-              name: normalized.args.name,
-              arguments: normalized.args.arguments ?? {},
-            }),
-            this.options.requestTimeoutMs,
-            `Hive MCP callTool(${normalized.args.name})`
-          );
-        } catch (error) {
-          lastError = error instanceof Error ? error : new Error(String(error));
-          if (attempt < maxAttempts) {
-            await delay(baseDelayMs * 2 ** attempt);
-          }
-        }
-      }
-
-      throw (
-        lastError ?? new Error(`Hive MCP callTool(${normalized.args.name}) failed`)
+      // Tool-call timeouts have an unknown outcome: the server may finish
+      // after the client disconnects. Never launch an automatic duplicate.
+      // The SDK timeout also propagates cancellation to the transport.
+      return this.client.callTool(
+        {
+          name: routed.name,
+          arguments: routed.arguments ?? {},
+        },
+        undefined,
+        {
+          timeout: this.options.requestTimeoutMs,
+          maxTotalTimeout: this.options.requestTimeoutMs,
+        },
       );
     };
 
@@ -264,7 +295,7 @@ export async function createHiveMcpClient(
   });
   const client = new Client({
     name: options.clientName ?? "hive-mcp-client",
-    version: options.clientVersion ?? "0.1.0",
+    version: options.clientVersion ?? HIVE_MCP_CLIENT_VERSION,
   });
   const connectTimeoutMs = options.connectTimeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS;
   const signal = AbortSignal.timeout(connectTimeoutMs);
@@ -274,7 +305,6 @@ export async function createHiveMcpClient(
     client,
     {
       requestTimeoutMs: options.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
-      retry: options.retry ?? {},
     },
     subjectRuntime,
     options.subject

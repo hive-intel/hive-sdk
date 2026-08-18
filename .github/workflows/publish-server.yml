@@ -1,0 +1,282 @@
+name: Publish Hive Intelligence
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact server package version from the draft release asset
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-server-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish hive-intelligence
+    if: >-
+      github.repository == 'hive-intel/hive-sdk' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm-server-release
+    env:
+      # The server tarball is built from the private deployment source, so a
+      # public-repo provenance statement would claim the wrong build source.
+      # Authentication still uses npm trusted publishing (OIDC).
+      NPM_CONFIG_PROVENANCE: "false"
+      RELEASE_VERSION: ${{ inputs.version }}
+
+    steps:
+      - name: Checkout protected release metadata
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate committed release manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_VERSION}"
+          [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          MANIFEST="releases/v${VERSION}.json"
+          test -f "$MANIFEST"
+          node <<'NODE'
+          const { appendFileSync, readFileSync } = require("node:fs");
+          const manifest = JSON.parse(readFileSync(`releases/v${process.env.RELEASE_VERSION}.json`, "utf8"));
+          const server = JSON.parse(readFileSync("server.json", "utf8"));
+          const release = JSON.parse(readFileSync("release.json", "utf8"));
+          const keys = ["buildSha", "deployedUrl", "imageDigest", "package", "schemaVersion", "sha256", "tarball", "version"];
+          if (JSON.stringify(Object.keys(manifest).sort()) !== JSON.stringify(keys)) throw new Error("Unexpected release manifest fields");
+          if (manifest.schemaVersion !== 1) throw new Error("Unsupported release manifest schema");
+          if (manifest.package !== "hive-intelligence") throw new Error("Unexpected package");
+          if (manifest.version !== process.env.RELEASE_VERSION) throw new Error("Manifest version mismatch");
+          if (manifest.tarball !== `hive-intelligence-${manifest.version}.tgz`) throw new Error("Tarball name mismatch");
+          if (!/^[a-f0-9]{64}$/.test(manifest.sha256)) throw new Error("Invalid tarball SHA-256");
+          if (!/^[a-f0-9]{40}$/.test(manifest.buildSha)) throw new Error("Invalid build SHA");
+          if (!/^sha256:[a-f0-9]{64}$/.test(manifest.imageDigest)) throw new Error("Invalid image digest");
+          if (manifest.deployedUrl !== "https://mcp.hiveintelligence.xyz") throw new Error("Unexpected deployed URL");
+          if (server.name !== "xyz.hiveintelligence/mcp") throw new Error("Registry id mismatch");
+          if (server.version !== manifest.version) throw new Error("Server manifest version mismatch");
+          if (server.packages?.[0]?.identifier !== manifest.package) throw new Error("Server package mismatch");
+          if (server.packages?.[0]?.version !== manifest.version) throw new Error("Server package version mismatch");
+          if (release.schemaVersion !== 1) throw new Error("Unsupported public release metadata schema");
+          if (release.registryId !== server.name) throw new Error("Public release registry id mismatch");
+          if (release.package !== manifest.package) throw new Error("Public release package mismatch");
+          if (release.version !== manifest.version) throw new Error("Public release version mismatch");
+          if (release.endpoints?.mcp !== "https://mcp.hiveintelligence.xyz/mcp") throw new Error("Public release MCP endpoint mismatch");
+          if (release.buildIdentity?.manifest !== `https://raw.githubusercontent.com/hive-intel/hive-sdk/v${manifest.version}/releases/v${manifest.version}.json`) throw new Error("Public release immutable-manifest pointer mismatch");
+          appendFileSync(process.env.GITHUB_ENV, [
+            `RELEASE_MANIFEST=${`releases/v${manifest.version}.json`}`,
+            `MANIFEST_TARBALL=${manifest.tarball}`,
+            `MANIFEST_SHA256=${manifest.sha256}`,
+            `MANIFEST_BUILD_SHA=${manifest.buildSha}`,
+            `MANIFEST_IMAGE_DIGEST=${manifest.imageDigest}`,
+            `MANIFEST_DEPLOYED_URL=${manifest.deployedUrl}`,
+          ].join("\n") + "\n");
+          NODE
+
+      - name: Verify canonical deployment matches release manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 5 --retry-all-errors \
+            --connect-timeout 10 --max-time 30 \
+            "${MANIFEST_DEPLOYED_URL}/health?release_verify=${MANIFEST_BUILD_SHA}" \
+            > "${RUNNER_TEMP}/deployed-health.json"
+          node <<'NODE'
+          const { readFileSync } = require("node:fs");
+          const health = JSON.parse(readFileSync(`${process.env.RUNNER_TEMP}/deployed-health.json`, "utf8"));
+          if (health.status !== "ok") throw new Error("Deployed health is not ok");
+          if (health.version !== process.env.RELEASE_VERSION) throw new Error("Deployed version mismatch");
+          if (health.build_sha !== process.env.MANIFEST_BUILD_SHA) throw new Error("Deployed build SHA mismatch");
+          NODE
+
+      - name: Validate release tag is on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_VERSION}"
+          [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          TAG="v${VERSION}"
+          git fetch --force --tags origin main:refs/remotes/origin/main
+          git rev-parse --verify "refs/tags/${TAG}^{commit}"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          test "$(git rev-list -n 1 "${TAG}")" = "${GITHUB_SHA}"
+          test "$(git rev-parse origin/main)" = "${GITHUB_SHA}"
+          gh release view "${TAG}" --json isDraft --jq '.isDraft' | grep -qx true
+          ACTUAL_ASSETS="$(gh release view "${TAG}" --json assets --jq '.assets[].name' | LC_ALL=C sort)"
+          EXPECTED_ASSETS="$(printf '%s\n' "${MANIFEST_TARBALL}" "${MANIFEST_TARBALL}.sha256" | LC_ALL=C sort)"
+          if [ "$ACTUAL_ASSETS" != "$EXPECTED_ASSETS" ]; then
+            echo "Draft release assets must be exactly:" >&2
+            printf '%s\n' "$EXPECTED_ASSETS" >&2
+            echo "Found:" >&2
+            printf '%s\n' "$ACTUAL_ASSETS" >&2
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: "24.18.0"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
+
+      - name: Install current npm publishing toolchain
+        run: |
+          npm install --global npm@12.0.0 sigstore@5.0.0
+          test "$(npm --version)" = "12.0.0"
+          test "$(node -p "require('$(npm root --global)/sigstore/package.json').version")" = "5.0.0"
+
+      - name: Download and verify private-build release artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_VERSION}"
+          TARBALL="${MANIFEST_TARBALL}"
+          gh release download "v${VERSION}" --pattern "${TARBALL}" --pattern "${TARBALL}.sha256"
+          node - <<'NODE'
+          const { readFileSync } = require("node:fs");
+          const line = readFileSync(`${process.env.MANIFEST_TARBALL}.sha256`, "utf8").trim();
+          const match = /^([a-f0-9]{64})[ *](.+)$/.exec(line);
+          if (!match || match[1] !== process.env.MANIFEST_SHA256 || match[2] !== process.env.MANIFEST_TARBALL) {
+            throw new Error("Draft-release checksum does not match the committed manifest");
+          }
+          NODE
+          node .github/scripts/validate-server-artifact.mjs "$TARBALL" "$RELEASE_MANIFEST"
+          npm publish "$TARBALL" --dry-run --provenance=false --ignore-scripts --access public >/dev/null
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Check immutable npm version
+        id: npm
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_VERSION}"
+          LOCAL_INTEGRITY="$(node -e 'const {createHash}=require("node:crypto");const {readFileSync}=require("node:fs");process.stdout.write("sha512-"+createHash("sha512").update(readFileSync(process.env.MANIFEST_TARBALL)).digest("base64"))')"
+          echo "local_integrity=$LOCAL_INTEGRITY" >> "${GITHUB_OUTPUT}"
+          if npm view "hive-intelligence@${VERSION}" version >/dev/null 2>npm-view.err; then
+            REMOTE_INTEGRITY="$(npm view "hive-intelligence@${VERSION}" dist.integrity)"
+            test "$REMOTE_INTEGRITY" = "$LOCAL_INTEGRITY" || {
+              echo "Existing immutable npm version has different integrity" >&2
+              exit 1
+            }
+            echo "already_published=true" >> "${GITHUB_OUTPUT}"
+          elif grep -q 'E404' npm-view.err; then
+            echo "already_published=false" >> "${GITHUB_OUTPUT}"
+          else
+            cat npm-view.err >&2
+            exit 1
+          fi
+
+      - name: Publish through npm trusted publishing
+        if: steps.npm.outputs.already_published != 'true'
+        run: npm publish "${MANIFEST_TARBALL}" --access public --provenance=false
+
+      - name: Confirm published version
+        shell: bash
+        run: |
+          for attempt in 1 2 3 4 5; do
+            REMOTE_VERSION="$(npm view "hive-intelligence@${RELEASE_VERSION}" version 2>/dev/null || true)"
+            REMOTE_INTEGRITY="$(npm view "hive-intelligence@${RELEASE_VERSION}" dist.integrity 2>/dev/null || true)"
+            if test "$REMOTE_VERSION" = "${RELEASE_VERSION}" && test "$REMOTE_INTEGRITY" = '${{ steps.npm.outputs.local_integrity }}'; then
+              exit 0
+            fi
+            sleep $((attempt * 2))
+          done
+          exit 1
+
+      - name: Check immutable MCP Registry version
+        id: mcp-registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://registry.modelcontextprotocol.io/v0.1/servers/xyz.hiveintelligence%2Fmcp/versions/${RELEASE_VERSION}"
+          STATUS="$(curl --silent --show-error --location --path-as-is \
+            --connect-timeout 10 --max-time 30 \
+            --output "${RUNNER_TEMP}/mcp-registry-version.json" \
+            --write-out '%{http_code}' "$URL")"
+          if test "$STATUS" = "404"; then
+            echo "already_published=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+          test "$STATUS" = "200"
+          node <<'NODE'
+          const { readFileSync } = require("node:fs");
+          const body = JSON.parse(readFileSync(`${process.env.RUNNER_TEMP}/mcp-registry-version.json`, "utf8"));
+          const server = body.server ?? body;
+          const official = body._meta?.["io.modelcontextprotocol.registry/official"] ?? {};
+          if (server.name !== "xyz.hiveintelligence/mcp") throw new Error("MCP Registry identity mismatch");
+          if (server.version !== process.env.RELEASE_VERSION) throw new Error("MCP Registry version mismatch");
+          if (official.status !== "active") throw new Error("Existing MCP Registry version is not active");
+          if (official.isLatest !== true) throw new Error("Existing MCP Registry version is not latest");
+          NODE
+          echo "already_published=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Install pinned MCP Registry publisher
+        if: steps.mcp-registry.outputs.already_published != 'true'
+        shell: bash
+        env:
+          MCP_PUBLISHER_VERSION: v1.7.9
+          MCP_PUBLISHER_SHA256: ab128162b0616090b47cf245afe0a23f3ef08936fdce19074f5ba0a4469281ac
+        run: |
+          set -euo pipefail
+          ARCHIVE="${RUNNER_TEMP}/mcp-publisher.tar.gz"
+          curl --fail --silent --show-error --location \
+            --connect-timeout 10 --max-time 60 \
+            "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz" \
+            --output "$ARCHIVE"
+          echo "${MCP_PUBLISHER_SHA256}  ${ARCHIVE}" | sha256sum --check --strict
+          tar -xzf "$ARCHIVE" -C "${RUNNER_TEMP}" mcp-publisher
+          chmod 0755 "${RUNNER_TEMP}/mcp-publisher"
+          "${RUNNER_TEMP}/mcp-publisher" --help >/dev/null
+
+      - name: Publish version to Official MCP Registry
+        if: steps.mcp-registry.outputs.already_published != 'true'
+        shell: bash
+        env:
+          MCP_REGISTRY_PRIVATE_KEY: ${{ secrets.MCP_REGISTRY_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${MCP_REGISTRY_PRIVATE_KEY}"
+          "${RUNNER_TEMP}/mcp-publisher" login http \
+            --domain hiveintelligence.xyz \
+            --algorithm ecdsap384 \
+            --private-key "${MCP_REGISTRY_PRIVATE_KEY}"
+          "${RUNNER_TEMP}/mcp-publisher" publish
+
+      - name: Confirm active latest MCP Registry version
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://registry.modelcontextprotocol.io/v0.1/servers/xyz.hiveintelligence%2Fmcp/versions/latest"
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent --show-error --location --path-as-is \
+              --connect-timeout 10 --max-time 30 "$URL" \
+              > "${RUNNER_TEMP}/mcp-registry-latest.json"; then
+              if node <<'NODE'
+          const { readFileSync } = require("node:fs");
+          const body = JSON.parse(readFileSync(`${process.env.RUNNER_TEMP}/mcp-registry-latest.json`, "utf8"));
+          const server = body.server ?? body;
+          const official = body._meta?.["io.modelcontextprotocol.registry/official"] ?? {};
+          if (server.name !== "xyz.hiveintelligence/mcp") process.exit(1);
+          if (server.version !== process.env.RELEASE_VERSION) process.exit(1);
+          if (official.status !== "active" || official.isLatest !== true) process.exit(1);
+          NODE
+              then
+                exit 0
+              fi
+            fi
+            sleep $((attempt * 2))
+          done
+          exit 1
