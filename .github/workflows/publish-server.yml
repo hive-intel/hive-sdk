@@ -150,7 +150,7 @@ jobs:
           node - <<'NODE'
           const { readFileSync } = require("node:fs");
           const line = readFileSync(`${process.env.MANIFEST_TARBALL}.sha256`, "utf8").trim();
-          const match = /^([a-f0-9]{64})[ *](.+)$/.exec(line);
+          const match = /^([a-f0-9]{64})[ *]+(.+)$/.exec(line);
           if (!match || match[1] !== process.env.MANIFEST_SHA256 || match[2] !== process.env.MANIFEST_TARBALL) {
             throw new Error("Draft-release checksum does not match the committed manifest");
           }
