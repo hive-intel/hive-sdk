@@ -9,7 +9,10 @@ on:
         type: string
 
 permissions:
-  contents: read
+  # contents: write — required to view and download DRAFT release assets
+  # (drafts are invisible to a read-only token; this bit blocked the first
+  # publish attempt).
+  contents: write
   id-token: write
 
 concurrency:
