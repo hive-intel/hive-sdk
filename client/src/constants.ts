@@ -74,6 +74,7 @@ export const HIVE_PROVIDER_NAMES = [
   "Codex",
   "Hyperliquid",
   "RWA Perps",
+  "Hive Archive",
   "Open Data Fetch",
 ] as const;
 

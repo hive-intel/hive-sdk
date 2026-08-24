@@ -6,7 +6,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "setup"
   requires_network: "true"
-version: 1.3.0
+version: 1.4.0
 ---
 
 # hive-cli — Hive From the Terminal
@@ -49,7 +49,7 @@ hive uninstall --all                     # remove from every client
 ```
 
 Domain subcommands map directly to Hive's category namespace:
-`market`, `defi`, `portfolio`, `security`, `social`, `exchange`, `dex`,
+`market`, `defi`, `portfolio`, `security`, `exchange`, `dex`,
 `wallet`, `nft`, `network`, and `search`. Run `hive --help` for the full
 list and `hive <domain> --help` for a domain's subcommands.
 

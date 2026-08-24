@@ -6,7 +6,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "defi"
   requires_network: "true"
-version: 1.3.0
+version: 1.4.0
 ---
 
 # hive-defi-research — DeFi Protocol Analysis

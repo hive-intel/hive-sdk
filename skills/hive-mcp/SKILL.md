@@ -6,7 +6,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "setup"
   requires_network: "true"
-version: 1.3.0
+version: 1.4.0
 ---
 
 # hive-mcp — Add Hive to an MCP Client

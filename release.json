@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "registryId": "xyz.hiveintelligence/mcp",
   "package": "hive-intelligence",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "endpoints": {
     "mcp": "https://mcp.hiveintelligence.xyz/mcp",
     "health": "https://mcp.hiveintelligence.xyz/health",
@@ -19,6 +19,6 @@
     "source": "runtime",
     "endpoint": "https://mcp.hiveintelligence.xyz/health",
     "field": "build_sha",
-    "manifest": "https://raw.githubusercontent.com/hive-intel/hive-sdk/v1.3.0/releases/v1.3.0.json"
+    "manifest": "https://raw.githubusercontent.com/hive-intel/hive-sdk/v1.4.0/releases/v1.4.0.json"
   }
 }

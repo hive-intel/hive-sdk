@@ -367,9 +367,8 @@ Global flags include `--json`, `--pretty`, `--jq <expr>`, `--csv`, `--fields`, `
 
 | Plan           | Monthly credits | Rate limit     | API keys | Price   |
 | -------------- | --------------- | -------------- | -------- | ------- |
-| **Demo**       | 10,000          | 30 req/min     | 5        | Free    |
-| **Analyst**    | 500,000         | 500 req/min    | 10       | $129/mo |
-| **Pro**        | 2,000,000       | 1,000 req/min  | 25       | $499/mo |
+| **Free**       | 10,000          | 30 req/min     | 5        | Free    |
+| **Pro**        | 500,000         | 500 req/min    | 10       | $129/mo |
 | **Enterprise** | Custom          | Custom req/min | Custom   | Custom  |
 
 One credit = one material endpoint execution, regardless of provider or response size. `search_tools`, `get_api_endpoint_schema`, `validate_task_result`, MCP `tools/list`, MCP resource reads, and authenticated `GET /api/v1/tools` are free. Full pricing: [hiveintelligence.xyz/pricing](https://hiveintelligence.xyz/pricing) · machine-readable: [hiveintelligence.xyz/pricing.md](https://hiveintelligence.xyz/pricing.md).

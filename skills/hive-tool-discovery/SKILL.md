@@ -6,7 +6,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "discovery"
   requires_network: "true"
-version: 1.3.0
+version: 1.4.0
 ---
 
 # hive-tool-discovery — Find The Right Hive Tool
