@@ -33,12 +33,12 @@ function normalized(value: string): string {
 
 const PROVIDER_ENDPOINT_ALIASES: Readonly<Record<string, readonly string[]>> = {
   "Open Data Fetch": ["fetch"],
+  "Hive Archive": ["archive"],
 };
 
 function providerNames(snapshot?: HiveMetadataSnapshot | null): string[] {
   const resource = snapshot?.resources["hive://providers"] as
-    | ProviderResource
-    | undefined;
+    ProviderResource | undefined;
   if (!resource || !Array.isArray(resource.providers)) {
     return [...HIVE_PROVIDER_NAMES];
   }
@@ -51,10 +51,11 @@ function providerNames(snapshot?: HiveMetadataSnapshot | null): string[] {
     .filter((provider): provider is string => Boolean(provider));
 }
 
-function toolCatalogEntries(snapshot?: HiveMetadataSnapshot | null): ToolCatalogItem[] {
+function toolCatalogEntries(
+  snapshot?: HiveMetadataSnapshot | null,
+): ToolCatalogItem[] {
   const resource = snapshot?.resources["hive://tools"] as
-    | ToolCatalogResource
-    | undefined;
+    ToolCatalogResource | undefined;
   if (!resource || !Array.isArray(resource.tools)) {
     return [];
   }
@@ -63,29 +64,33 @@ function toolCatalogEntries(snapshot?: HiveMetadataSnapshot | null): ToolCatalog
 
 export function inferHiveProvider(
   endpointName: string,
-  snapshot?: HiveMetadataSnapshot | null
+  snapshot?: HiveMetadataSnapshot | null,
 ): string | undefined {
   const catalogMatch = toolCatalogEntries(snapshot).find(
-    (tool) => tool.name === endpointName && typeof tool.provider === "string"
+    (tool) => tool.name === endpointName && typeof tool.provider === "string",
   );
   if (catalogMatch && typeof catalogMatch.provider === "string") {
     return catalogMatch.provider;
   }
   const endpoint = normalized(endpointName);
+  // Hive-native endpoints (hive_*) never belong to a data provider. Without
+  // this guard the fuzzy includes() below would match hive_archive_monitor
+  // against "Hive Archive".
+  if (endpoint.startsWith("hive")) return undefined;
   return providerNames(snapshot).find((provider) => {
     if (endpoint.includes(normalized(provider))) return true;
     return (PROVIDER_ENDPOINT_ALIASES[provider] ?? []).some((alias) =>
-      endpoint.startsWith(normalized(alias))
+      endpoint.startsWith(normalized(alias)),
     );
   });
 }
 
 export function inferHiveCategory(
   endpointName: string,
-  snapshot?: HiveMetadataSnapshot | null
+  snapshot?: HiveMetadataSnapshot | null,
 ): string | undefined {
   const catalogMatch = toolCatalogEntries(snapshot).find(
-    (tool) => tool.name === endpointName && typeof tool.category === "string"
+    (tool) => tool.name === endpointName && typeof tool.category === "string",
   );
   return typeof catalogMatch?.category === "string"
     ? catalogMatch.category
@@ -104,7 +109,8 @@ export function extractHiveSources({
   toolName: string;
 }): HiveSource[] {
   const endpoint =
-    toolName === "invoke_api_endpoint" || toolName === "invoke_stateful_endpoint"
+    toolName === "invoke_api_endpoint" ||
+    toolName === "invoke_stateful_endpoint"
       ? typeof args?.endpoint_name === "string"
         ? args.endpoint_name
         : typeof args?.endpoint === "string"

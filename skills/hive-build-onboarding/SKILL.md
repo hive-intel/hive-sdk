@@ -6,7 +6,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "setup"
   requires_network: "true"
-version: 1.3.0
+version: 1.4.0
 ---
 
 # hive-build-onboarding — Get a Hive API Key
@@ -72,8 +72,8 @@ The key's prefix tells you the environment:
   capped tools)
 - `hive_dev_` — local development key
 
-The user can have multiple keys. Plan-tier limits: Demo = 5 keys,
-Analyst = 10, Pro = 25, Enterprise = 100.
+The user can have multiple keys. Plan-tier limits: Free = 5 keys,
+Pro = 10, Enterprise = 100.
 
 ## When the user can't find an old key
 
@@ -107,12 +107,12 @@ disabled.
 
 ## Plan upgrade
 
-If the user wants higher limits than the Demo tier, direct them to
+If the user wants higher limits than the Free tier, direct them to
 https://www.hiveintelligence.xyz/dashboard/plans — always quote limits and
-prices from that page, since they change. As of July 2026 the tiers are:
+prices from that page, since they change. As of August 2026 the tiers are:
 
-- Analyst — $129/month, 500k credits, 500 req/min, 10 keys
-- Pro — $499/month, 2M credits, 1k req/min, 25 keys
+- Free — 10k credits, 30 req/min, 5 keys
+- Pro — $129/month, 500k credits, 500 req/min, 10 keys
 - Enterprise — custom, unlimited credits, 3k req/min, 100 keys
 
 ## Runtime status handling

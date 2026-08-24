@@ -6,7 +6,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "solana"
   requires_network: "true"
-version: 1.3.0
+version: 1.4.0
 ---
 
 # hive-solana-analysis — Solana Analysis
