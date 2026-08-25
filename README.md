@@ -18,7 +18,15 @@ prediction-market evidence behind one agent-ready connection.
 
 </div>
 
-> ⚡ **New here?** [Run a fixed read-only demo](https://www.hiveintelligence.xyz/playground) without an account · [Install guides](https://www.hiveintelligence.xyz/install) · [Example prompts](#example-prompts)
+> ⚡ **Try it now — no account, no key.** The hosted endpoint's anonymous lane
+> answers 25 material calls per IP per day; discovery, schema lookup, and
+> validation are always free:
+>
+> ```text
+> https://mcp.hiveintelligence.xyz/mcp
+> ```
+>
+> [Guided setup](https://www.hiveintelligence.xyz/setup) · [Install guides](https://www.hiveintelligence.xyz/install) · [Example prompts](#example-prompts)
 
 ---
 
@@ -33,14 +41,18 @@ use an API key from secret storage:
 https://mcp.hiveintelligence.xyz/mcp
 ```
 
+One-click config prefills — URL-only, no key or secret embedded:
+
+[![Add to Cursor](https://img.shields.io/badge/Add_to-Cursor-000000.svg?logo=cursor)](https://cursor.com/en/install-mcp?name=hive&config=eyJ1cmwiOiJodHRwczovL21jcC5oaXZlaW50ZWxsaWdlbmNlLnh5ei9tY3AifQ==)
+[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-0098FF?logo=visualstudiocode&logoColor=white)](vscode:mcp/install?%7B%22name%22%3A%22hive%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.hiveintelligence.xyz%2Fmcp%22%7D)
 [![Cursor setup](https://img.shields.io/badge/Cursor-Setup-000000.svg?logo=cursor)](https://www.hiveintelligence.xyz/install/cursor)
 [![VS Code setup](https://img.shields.io/badge/VS_Code-Setup-0098FF?logo=visualstudiocode&logoColor=white)](https://www.hiveintelligence.xyz/install/vs-code)
 
-The setup pages check the live protected-resource metadata, server card,
-release version, and required client redirect profiles before showing a native
-install action. Until that gate passes, use the API-key fallback from a trusted
-backend/client; never put a key in an install link. Per-client config blocks are
-below.
+The prefills carry only the public endpoint URL. The setup pages check the live
+protected-resource metadata, server card, release version, and required client
+redirect profiles before showing a native install action. Until that gate
+passes, use the API-key fallback from a trusted backend/client; never put a key
+in an install link. Per-client config blocks are below.
 
 ## What is Hive Intelligence?
 
@@ -61,6 +73,14 @@ remains the explicit headless fallback.
 
 ```bash
 claude mcp add --transport http --scope user hive https://mcp.hiveintelligence.xyz/mcp
+```
+
+Or install the full plugin bundle — the hosted MCP connection plus 17 crypto
+workflow skills — from this repository's plugin marketplace:
+
+```bash
+claude plugin marketplace add hive-intel/hive-sdk
+claude plugin install hive@hive
 ```
 
 ### Cursor
@@ -169,7 +189,8 @@ JSON-RPC channel, not an interactive command). For terminal use, see the
 
 ## Authentication
 
-- Get a key at [hiveintelligence.xyz/dashboard/keys](https://hiveintelligence.xyz/dashboard/keys); the free Demo plan needs no card.
+- No key needed to start: the hosted endpoint's anonymous lane answers 25 material calls per IP per day, and discovery/schema/validation calls are always free.
+- Get a key at [hiveintelligence.xyz/dashboard/keys](https://hiveintelligence.xyz/dashboard/keys) when you want your own quota; the Free plan needs no card.
 - Authenticate the hosted endpoint with `Authorization: Bearer hive_live_...` (legacy alias `x-api-key` also works).
 - One key, least privilege: keys are scoped to your plan's rate limit and credits. Rotate or revoke from the dashboard; never commit a key or paste it into client-side code.
 
@@ -197,9 +218,22 @@ Alchemy · CoinGecko · DeFiLlama · Moralis · Codex · GoPlus · Helius · Ten
 
 ## Tools & discovery
 
-Hive's default contract is a compact five-tool root focused on evidence-backed
-decisions: search, schema inspection, separate read/write routers, and
-workflow-result validation. Agents start with compact,
+Hive's default contract is a compact eight-tool root: three hero tools for the
+dominant intents, plus a five-tool discovery/execution loop over the full
+catalog.
+
+| Root tool | What it does |
+| --- | --- |
+| `get_token_price` | Hero: live price for any token (`response_format`: concise or detailed) |
+| `check_token_safety` | Hero: honeypot, rugpull, and contract-risk verdict before anyone signs |
+| `get_wallet_portfolio` | Hero: multi-chain wallet balances and portfolio value |
+| `search_tools` | Find the right task toolset and route across the full catalog (free) |
+| `get_api_endpoint_schema` | Inspect exact parameters before executing (free) |
+| `invoke_api_endpoint` | Execute any read endpoint in the catalog |
+| `invoke_stateful_endpoint` | Hive-native state changes — requires explicit user approval |
+| `validate_task_result` | Check the final envelope and receipt structure (free) |
+
+Agents start with compact,
 paginated `search_tools` results, load one exact `hive://toolsets/{id}` workflow,
 inspect `get_api_endpoint_schema`, then call `invoke_api_endpoint` for reads or
 `invoke_stateful_endpoint` after explicit approval for a Hive-native state
@@ -313,11 +347,14 @@ Installable [agent skills](https://github.com/hive-intel/hive-skills) teach Clau
 npx skills add hive-intel/hive-skills
 ```
 
-### OpenAI / Codex and Cursor plugin bundle
+### Claude Code, OpenAI / Codex, and Cursor plugin bundle
 
-This repository root is also a distribution-ready Codex plugin bundle. It
-combines three public, reviewable pieces:
+This repository root is also a distribution-ready plugin bundle. It combines
+public, reviewable pieces:
 
+- [`.claude-plugin/`](./.claude-plugin) — Claude Code plugin and marketplace
+  manifests over the same MCP connection and workflow skills
+  (`claude plugin marketplace add hive-intel/hive-sdk`).
 - [`.codex-plugin/plugin.json`](./.codex-plugin/plugin.json) — product and
   interface metadata, starter prompts, and component declarations.
 - [`.cursor-plugin/plugin.json`](./.cursor-plugin/plugin.json) — the
@@ -367,8 +404,9 @@ Global flags include `--json`, `--pretty`, `--jq <expr>`, `--csv`, `--fields`, `
 
 | Plan           | Monthly credits | Rate limit     | API keys | Price   |
 | -------------- | --------------- | -------------- | -------- | ------- |
-| **Free**       | 10,000          | 30 req/min     | 5        | Free    |
-| **Pro**        | 500,000         | 500 req/min    | 10       | $129/mo |
+| **Free**       | 10,000          | 100 req/min    | 5        | Free    |
+| **Starter**    | 100,000         | 300 req/min    | 5        | $49/mo  |
+| **Pro**        | 500,000         | 500 req/min    | 10       | $149/mo |
 | **Enterprise** | Custom          | Custom req/min | Custom   | Custom  |
 
 One credit = one material endpoint execution, regardless of provider or response size. `search_tools`, `get_api_endpoint_schema`, `validate_task_result`, MCP `tools/list`, MCP resource reads, and authenticated `GET /api/v1/tools` are free. Full pricing: [hiveintelligence.xyz/pricing](https://hiveintelligence.xyz/pricing) · machine-readable: [hiveintelligence.xyz/pricing.md](https://hiveintelligence.xyz/pricing.md).
@@ -394,7 +432,7 @@ Single-provider MCPs win on niche depth. Hive wins when the agent needs **broad 
 ## FAQ
 
 **What does an API key cost?**
-Free Demo plan with 10,000 monthly credits — no card required. Paid plans start at $129/month for 500K credits. [Get a key](https://hiveintelligence.xyz/dashboard/keys).
+Nothing to start: the anonymous lane needs no key at all (25 material calls per IP per day), and the Free plan adds 10,000 monthly credits with no card required. Paid plans start at $49/month (Starter, 100K credits); Pro is $149/month for 500K. [Get a key](https://hiveintelligence.xyz/dashboard/keys).
 
 **Hosted vs local stdio — which should I use?**
 Hosted (`https://mcp.hiveintelligence.xyz/mcp`) is recommended for most integrations: no local server, Hive runs auth, rate limits, and provider infrastructure. Use local stdio for desktop setups, self-hosting, or your own upstream provider keys.
