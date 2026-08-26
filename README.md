@@ -18,7 +18,7 @@ prediction-market evidence behind one agent-ready connection.
 
 </div>
 
-> ⚡ **Try it now — no account, no key.** The hosted endpoint's anonymous lane
+> **Try it now, with no account and no key.** The hosted endpoint's anonymous lane
 > answers 25 material calls per IP per day; discovery, schema lookup, and
 > validation are always free:
 >
@@ -41,7 +41,7 @@ use an API key from secret storage:
 https://mcp.hiveintelligence.xyz/mcp
 ```
 
-One-click config prefills — URL-only, no key or secret embedded:
+One-click config prefills, URL-only with no key or secret embedded:
 
 [![Add to Cursor](https://img.shields.io/badge/Add_to-Cursor-000000.svg?logo=cursor)](https://cursor.com/en/install-mcp?name=hive&config=eyJ1cmwiOiJodHRwczovL21jcC5oaXZlaW50ZWxsaWdlbmNlLnh5ei9tY3AifQ==)
 [![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-0098FF?logo=visualstudiocode&logoColor=white)](vscode:mcp/install?%7B%22name%22%3A%22hive%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.hiveintelligence.xyz%2Fmcp%22%7D)
@@ -75,8 +75,8 @@ remains the explicit headless fallback.
 claude mcp add --transport http --scope user hive https://mcp.hiveintelligence.xyz/mcp
 ```
 
-Or install the full plugin bundle — the hosted MCP connection plus 17 crypto
-workflow skills — from this repository's plugin marketplace:
+Or install the full plugin bundle (the hosted MCP connection plus 17 crypto
+workflow skills) from this repository's plugin marketplace:
 
 ```bash
 claude plugin marketplace add hive-intel/hive-sdk
@@ -230,7 +230,7 @@ catalog.
 | `search_tools` | Find the right task toolset and route across the full catalog (free) |
 | `get_api_endpoint_schema` | Inspect exact parameters before executing (free) |
 | `invoke_api_endpoint` | Execute any read endpoint in the catalog |
-| `invoke_stateful_endpoint` | Hive-native state changes — requires explicit user approval |
+| `invoke_stateful_endpoint` | Hive-native state changes; requires explicit user approval |
 | `validate_task_result` | Check the final envelope and receipt structure (free) |
 
 Agents start with compact,
@@ -241,7 +241,7 @@ change. `validate_task_result` checks the final envelope and receipt structure;
 it requires claim-to-receipt citations and canonical phase coverage, but cannot
 make invented receipt data authentic.
 
-The long-tail catalog remains discoverable behind that workflow surface: 615
+The long-tail catalog remains discoverable behind that workflow surface: 607
 callable tools across 10 categories.
 
 Every exact workflow publishes a default and maximum material-call budget,
@@ -268,15 +268,15 @@ Clients that want a smaller, scoped tool surface can connect to a category endpo
 
 Crypto answers are only useful if they're trustworthy. Hive is built for that:
 
-- **Provenance on every response.** Tool results carry a server-minted receipt with provider, Hive retrieval/observation time, cache age, source state, runtime status, server/build version, and SHA-256 input/result self-checks. The digests are not signatures or a retained lookup service. `observed_at` is Hive's first-observation/original cache time, not necessarily the upstream event time; `cache_age_ms: 0` only means newly retrieved by Hive. `source` reports the delivery state, while `origin_source` preserves whether cached data originally came from the live or fallback tier. Use provider timestamps, blocks, slots, transactions, or candle closes for source recency, and mark it unknown when absent. Hive **never silently mixes provider data** — fallback, cached, or degraded data is labeled as such.
+- **Provenance on every response.** Tool results carry a server-minted receipt with provider, Hive retrieval/observation time, cache age, source state, runtime status, server/build version, and SHA-256 input/result self-checks. The digests are not signatures or a retained lookup service. `observed_at` is Hive's first-observation/original cache time, not necessarily the upstream event time; `cache_age_ms: 0` only means newly retrieved by Hive. `source` reports the delivery state, while `origin_source` preserves whether cached data originally came from the live or fallback tier. Use provider timestamps, blocks, slots, transactions, or candle closes for source recency, and mark it unknown when absent. Hive **never silently mixes provider data**: fallback, cached, or degraded data is labeled as such.
 - **Point-in-time, not drift.** Time-series tools accept `at` / `block_number` so agents answer historical questions without quietly defaulting to "latest."
 - **Security-first tools.** `get_token_security`, `detect_rugpull`, approval-risk, and Tenderly transaction simulation return structured risk flags so an agent can check _before_ a user signs.
-- **Least privilege & prompt-injection awareness.** Use a scoped key per environment and rotate from the dashboard. As with any tool-using agent, treat on-chain text (token names, memos) as untrusted input — Hive returns structured fields rather than free-form instructions to reduce injection surface.
+- **Least privilege & prompt-injection awareness.** Use a scoped key per environment and rotate from the dashboard. As with any tool-using agent, treat on-chain text (token names, memos) as untrusted input. Hive returns structured fields rather than free-form instructions to reduce injection surface.
 - **No client-side keys.** Keep your Hive key server-side; browser UIs should call your own backend, which uses the key (see the [SDK](#typescript-sdk--hive-mcp-client) B2B subject sessions).
 
 ## Example prompts
 
-Once Hive is connected, ask in plain English — each maps to a real tool call you don't have to write:
+Once Hive is connected, ask in plain English. Each prompt maps to a real tool call you don't have to write:
 
 ```
 What's the price of BTC, ETH, and SOL right now in USD?
@@ -290,7 +290,7 @@ Simulate this transaction before I sign it: <tx hash or calldata>
 
 More workflow guides: [hiveintelligence.xyz/use-cases](https://hiveintelligence.xyz/use-cases).
 
-## TypeScript SDK — `hive-mcp-client`
+## TypeScript SDK: `hive-mcp-client`
 
 Call Hive from your own agent or backend without wiring MCP by hand. The typed client ships on npm and in [`client/`](./client):
 
@@ -341,7 +341,7 @@ adapter-cached. Full API: [`client/README.md`](./client/README.md).
 
 ## Agent skills
 
-Installable [agent skills](https://github.com/hive-intel/hive-skills) teach Claude Code, Cursor, Codex, and other agents the Hive workflow — MCP setup, tool discovery, and live crypto research:
+Installable [agent skills](https://github.com/hive-intel/hive-skills) teach Claude Code, Cursor, Codex, and other agents the Hive workflow: MCP setup, tool discovery, and live crypto research:
 
 ```bash
 npx skills add hive-intel/hive-skills
@@ -352,20 +352,20 @@ npx skills add hive-intel/hive-skills
 This repository root is also a distribution-ready plugin bundle. It combines
 public, reviewable pieces:
 
-- [`.claude-plugin/`](./.claude-plugin) — Claude Code plugin and marketplace
+- [`.claude-plugin/`](./.claude-plugin): Claude Code plugin and marketplace
   manifests over the same MCP connection and workflow skills
   (`claude plugin marketplace add hive-intel/hive-sdk`).
-- [`.codex-plugin/plugin.json`](./.codex-plugin/plugin.json) — product and
+- [`.codex-plugin/plugin.json`](./.codex-plugin/plugin.json): product and
   interface metadata, starter prompts, and component declarations.
-- [`.cursor-plugin/plugin.json`](./.cursor-plugin/plugin.json) — the
+- [`.cursor-plugin/plugin.json`](./.cursor-plugin/plugin.json): the
   Cursor-native manifest over the same MCP connection and workflow skills.
-- [`.mcp.json`](./.mcp.json) — the URL-only hosted Hive connection. It contains
+- [`.mcp.json`](./.mcp.json): the URL-only hosted Hive connection. It contains
   no API key, token, header, or credential placeholder.
-- [`skills/`](./skills) — bundled setup, discovery, and crypto-research
+- [`skills/`](./skills): bundled setup, discovery, and crypto-research
   workflows that teach the agent to inspect schemas, stay within workflow call
   budgets, preserve provenance, and require explicit approval before a
   Hive-native state change.
-- [`marketplace-review.json`](./marketplace-review.json) — release-bound listing
+- [`marketplace-review.json`](./marketplace-review.json): release-bound listing
   copy, starter prompts, and the exact five positive plus three negative review
   cases. It is a public preparation fixture, not a Cursor or OpenAI manifest;
   reviewer credentials, domain challenges, availability choices, and legal
@@ -386,7 +386,7 @@ hive market price --ids bitcoin,ethereum,solana --vs usd   # prices
 hive defi tvl --protocol aave                              # DeFi TVL
 hive security scan --token 0x...                           # token security
 hive portfolio balance --address 0x...                     # wallet portfolio
-hive tools search "funding rate"                           # search the 615-tool catalog
+hive tools search "funding rate"                           # search the 607-tool catalog
 hive tools call get_price --args '{"ids":"bitcoin","vs_currencies":"usd"}'
 ```
 
@@ -396,7 +396,7 @@ Global flags include `--json`, `--pretty`, `--jq <expr>`, `--csv`, `--fields`, `
 
 | Variable               | Description                                                   |
 | ---------------------- | ------------------------------------------------------------- |
-| `HIVE_API_KEY`         | **Required.** API key — or run `hive auth login`              |
+| `HIVE_API_KEY`         | **Required.** API key, or run `hive auth login`               |
 | `HIVE_API_URL`         | Custom base URL (default: `https://mcp.hiveintelligence.xyz`) |
 | `API_EXECUTE_ENDPOINT` | Override execute endpoint (advanced)                          |
 
@@ -417,7 +417,7 @@ One credit = one material endpoint execution, regardless of provider or response
 | -------------------- | ------- | ------------- | ----------- | ------------- | ----------- |
 | Provider groups      | **13**  | 1             | 1           | 1             | 1           |
 | Categories           | **10**  | 2             | 3           | 1             | 1           |
-| Total tools          | **615** | ~50           | ~60         | ~15           | ~20         |
+| Total tools          | **607** | ~50           | ~60         | ~15           | ~20         |
 | Market data          | ✓       | ✓             | partial     | –             | –           |
 | DeFi TVL + yields    | ✓       | –             | –           | ✓             | –           |
 | Wallet portfolio     | ✓       | –             | ✓           | –             | –           |
@@ -427,14 +427,14 @@ One credit = one material endpoint execution, regardless of provider or response
 | Solana depth (DAS)   | ✓       | –             | –           | –             | –           |
 | Managed (no ops)     | ✓       | ✓             | partial     | varies        | varies      |
 
-Single-provider MCPs win on niche depth. Hive wins when the agent needs **broad crypto context in one request** — prices + DeFi + wallet + security + DEX in a single conversation, without anyone figuring out which tool lives in which provider.
+Single-provider MCPs win on niche depth. Hive wins when the agent needs **broad crypto context in one request**: prices + DeFi + wallet + security + DEX in a single conversation, without anyone figuring out which tool lives in which provider.
 
 ## FAQ
 
 **What does an API key cost?**
 Nothing to start: the anonymous lane needs no key at all (25 material calls per IP per day), and the Free plan adds 10,000 monthly credits with no card required. Paid plans start at $49/month (Starter, 100K credits); Pro is $149/month for 500K. [Get a key](https://hiveintelligence.xyz/dashboard/keys).
 
-**Hosted vs local stdio — which should I use?**
+**Hosted vs local stdio: which should I use?**
 Hosted (`https://mcp.hiveintelligence.xyz/mcp`) is recommended for most integrations: no local server, Hive runs auth, rate limits, and provider infrastructure. Use local stdio for desktop setups, self-hosting, or your own upstream provider keys.
 
 **Which AI clients support MCP?**
@@ -451,19 +451,19 @@ Every material result carries provider attribution, source/cache state, runtime 
 
 ## Documentation
 
-- **Quick Start** — [hiveintelligence.xyz/quick-start](https://hiveintelligence.xyz/quick-start)
-- **API Reference** — [hiveintelligence.xyz/api-integration](https://hiveintelligence.xyz/api-integration)
-- **Install Guides** — [hiveintelligence.xyz/install](https://hiveintelligence.xyz/install)
-- **CLI Reference** — [hiveintelligence.xyz/cli](https://hiveintelligence.xyz/cli)
-- **Tool Catalog** — [hiveintelligence.xyz/tools/live-catalog](https://hiveintelligence.xyz/tools/live-catalog)
-- **Agent Skills** — [github.com/hive-intel/hive-skills](https://github.com/hive-intel/hive-skills)
+- **Quick Start:** [hiveintelligence.xyz/quick-start](https://hiveintelligence.xyz/quick-start)
+- **API Reference:** [hiveintelligence.xyz/api-integration](https://hiveintelligence.xyz/api-integration)
+- **Install Guides:** [hiveintelligence.xyz/install](https://hiveintelligence.xyz/install)
+- **CLI Reference:** [hiveintelligence.xyz/cli](https://hiveintelligence.xyz/cli)
+- **Tool Catalog:** [hiveintelligence.xyz/tools/live-catalog](https://hiveintelligence.xyz/tools/live-catalog)
+- **Agent Skills:** [github.com/hive-intel/hive-skills](https://github.com/hive-intel/hive-skills)
 
 ## Support
 
-- **GitHub Issues** — [github.com/hive-intel/hive-sdk/issues](https://github.com/hive-intel/hive-sdk/issues)
-- **Email** — [support@hiveintelligence.xyz](mailto:support@hiveintelligence.xyz)
-- **Telegram** — [t.me/HiveIntelligence](https://t.me/HiveIntelligence)
-- **Twitter / X** — [@Hive_Intel](https://x.com/Hive_Intel)
+- **GitHub Issues:** [github.com/hive-intel/hive-sdk/issues](https://github.com/hive-intel/hive-sdk/issues)
+- **Email:** [support@hiveintelligence.xyz](mailto:support@hiveintelligence.xyz)
+- **Telegram:** [t.me/HiveIntelligence](https://t.me/HiveIntelligence)
+- **Twitter / X:** [@Hive_Intel](https://x.com/Hive_Intel)
 
 ## License
 
