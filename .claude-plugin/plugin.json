@@ -1,6 +1,6 @@
 {
   "name": "hive",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "One OAuth-ready connection for evidence-backed crypto due diligence, with sources, freshness, and a runtime receipt on every Hive call.",
   "author": {
     "name": "Hive Intelligence",
