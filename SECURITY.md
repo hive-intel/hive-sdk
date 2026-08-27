@@ -2,9 +2,10 @@
 
 ## Reporting a vulnerability
 
-Email **security@hiveintelligence.xyz** with details and reproduction steps.
-Please do not open public issues for security reports. We aim to acknowledge
-within 2 business days.
+Report through our Telegram, [t.me/HiveIntelligence](https://t.me/HiveIntelligence):
+send a direct message to a group admin rather than posting in the public
+channel, and include details and reproduction steps. Please do not open public
+issues for security reports. We aim to acknowledge within 2 business days.
 
 ## Scope
 
