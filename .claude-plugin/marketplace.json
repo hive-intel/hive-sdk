@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "Live crypto market data for AI agents: evidence-backed answers with sources, freshness, and a runtime receipt on every call.",
-    "version": "1.5.1"
+    "version": "1.5.2"
   },
   "plugins": [
     {
       "name": "hive",
       "source": "./",
       "description": "One OAuth-ready connection for evidence-backed crypto due diligence, with sources, freshness, and a runtime receipt on every Hive call. Bundles the hosted Hive MCP server with 17 crypto workflow skills.",
-      "version": "1.5.1",
+      "version": "1.5.2",
       "author": {
         "name": "Hive Intelligence",
         "url": "https://www.hiveintelligence.xyz",
