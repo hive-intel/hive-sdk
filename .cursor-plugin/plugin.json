@@ -1,7 +1,7 @@
 {
   "name": "hive-sdk",
   "displayName": "Hive Intelligence",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "One hosted MCP connection and bundled workflows for evidence-backed crypto due diligence, with sources, freshness, and runtime receipts.",
   "author": {
     "name": "Hive Intelligence",

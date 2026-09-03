@@ -8,7 +8,7 @@
     "source": "github"
   },
   "websiteUrl": "https://hiveintelligence.xyz",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "remotes": [
     {
       "type": "streamable-http",
@@ -33,7 +33,7 @@
     {
       "registryType": "npm",
       "identifier": "hive-intelligence",
-      "version": "1.5.2",
+      "version": "1.5.3",
       "transport": {
         "type": "stdio"
       },
