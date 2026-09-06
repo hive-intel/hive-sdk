@@ -80,10 +80,10 @@
   },
   "devDependencies": {
     "@langchain/core": "^1.2.2",
-    "@types/node": "^24.13.3",
+    "@types/node": "^26.4.1",
     "tsup": "8.5.1",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.0"
   },
   "overrides": {
     "esbuild": "0.28.1"
