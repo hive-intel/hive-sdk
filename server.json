@@ -8,7 +8,7 @@
     "source": "github"
   },
   "websiteUrl": "https://hiveintelligence.xyz",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "remotes": [
     {
       "type": "streamable-http",
@@ -33,7 +33,7 @@
     {
       "registryType": "npm",
       "identifier": "hive-intelligence",
-      "version": "1.5.3",
+      "version": "1.6.0",
       "transport": {
         "type": "stdio"
       },
@@ -48,13 +48,6 @@
         {
           "name": "ALCHEMY_API_KEY",
           "description": "Alchemy API key (EVM wallet, token, NFT, transfer, simulation, gas, and RPC data)",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": true
-        },
-        {
-          "name": "CODEX_API_KEY",
-          "description": "Codex GraphQL API key",
           "isRequired": false,
           "format": "string",
           "isSecret": true

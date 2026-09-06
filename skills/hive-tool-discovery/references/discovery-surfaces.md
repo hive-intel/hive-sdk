@@ -65,7 +65,7 @@ type:
 
 ```json
 {
-  "query": "prediction markets event outcomes traders polymarket",
+  "query": "defi protocol tvl fees revenue aave",
   "limit": 5
 }
 ```

@@ -5,8 +5,8 @@
 **One connection for evidence-backed crypto due diligence.**
 
 Every Hive-backed answer carries sources, freshness, and a runtime receipt. The
-hosted MCP normalizes market, wallet, DeFi, security, DEX, NFT, network, and
-prediction-market evidence behind one agent-ready connection.
+hosted MCP normalizes market, wallet, DeFi, security, DEX, NFT, and network
+evidence behind one agent-ready connection.
 
 [![MCP](https://img.shields.io/badge/MCP-compatible-111827.svg)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -58,7 +58,7 @@ in an install link. Per-client config blocks are below.
 
 A managed MCP server, REST API, and CLI that give AI agents one evidence-backed
 workflow surface over live crypto market data, DeFi, wallets, token security,
-DEX flows, NFTs, prediction markets, and on-chain network data. Agents receive
+DEX flows, NFTs, and on-chain network data. Agents receive
 the provider, Hive retrieval time, Hive first-observation/original cache time,
 cache age, fallback state, runtime status, and a unique receipt for every
 material execution instead of silently mixing provider data.
@@ -75,7 +75,7 @@ remains the explicit headless fallback.
 claude mcp add --transport http --scope user hive https://mcp.hiveintelligence.xyz/mcp
 ```
 
-Or install the full plugin bundle (the hosted MCP connection plus 17 crypto
+Or install the full plugin bundle (the hosted MCP connection plus 16 crypto
 workflow skills) from this repository's plugin marketplace:
 
 ```bash
@@ -196,24 +196,25 @@ JSON-RPC channel, not an interactive command). For terminal use, see the
 
 ## Powered by
 
-Ten upstream provider integrations plus Open Data Fetch, normalized into one tool surface:
+Eleven upstream provider integrations plus Open Data Fetch, normalized into one tool surface:
 
 ```
-Alchemy · CoinGecko · DeFiLlama · Moralis · Codex · GoPlus · Helius · Tenderly · CCXT · Hyperliquid · Open Data Fetch
+Alchemy · CoinGecko · DeFiLlama · Moralis · GoPlus · Helius · Tenderly · CCXT · Hyperliquid · RWA Perps · Hive Archive · Open Data Fetch
 ```
 
 | Provider               | Coverage                                                                                                     |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------ |
 | **Alchemy**            | EVM portfolio, token, NFT, transfer, simulation, gas, network data, and Solana DAS                           |
-| **CoinGecko**          | Market data, prices, OHLCV, exchanges, NFT collections                                                       |
+| **CoinGecko**          | Market data, prices, OHLCV, exchanges, NFT collections, on-chain networks, tokenized RWA markets            |
 | **DeFiLlama**          | TVL, yield pools, protocol metrics, bridges, treasuries                                                      |
 | **Moralis**            | EVM and Solana wallet, token, NFT, DeFi, transfer, and market analytics                                      |
-| **Codex** (Defined.fi) | DEX pair OHLCV, prediction markets (Polymarket)                                                              |
 | **GoPlus**             | Token security, honeypot detection, contract risk, malicious-address reputation                              |
-| **Helius**             | Solana RPC, DAS, compressed NFTs, priority fees                                                              |
+| **Helius**             | Solana RPC, DAS, compressed NFTs, Parsed Events, priority fees                                               |
 | **Tenderly**           | EVM simulation, gas estimation, traces, contract decode, signatures, storage changes, and transaction ranges |
 | **CCXT**               | Centralized exchange data, order books, derivatives, funding, leverage, and borrow rates                     |
-| **Hyperliquid**        | Native perpetual DEX volume, funding, candles, open-interest caps, and builder DEXs                          |
+| **Hyperliquid**        | Full /info surface: perp/spot markets, order books, user state, vaults, staking, HIP-3 builder DEXs, HIP-4 outcome markets |
+| **RWA Perps**          | Keyless five-venue fan-out for tokenized-asset perps: Hyperliquid HIP-3 builder DEXs, Ostium, Avantis, Lighter, Extended |
+| **Hive Archive**       | Supabase-backed derivatives history served by Hive, no provider key                                          |
 | **Open Data Fetch**    | Allowlisted, size-capped access to long-tail public crypto APIs when no typed tool covers the source         |
 
 ## Tools & discovery
@@ -241,8 +242,8 @@ change. `validate_task_result` checks the final envelope and receipt structure;
 it requires claim-to-receipt citations and canonical phase coverage, but cannot
 make invented receipt data authentic.
 
-The long-tail catalog remains discoverable behind that workflow surface: 607
-callable tools across 10 categories.
+The long-tail catalog remains discoverable behind that workflow surface: 534
+callable tools across 9 categories.
 
 Every exact workflow publishes a default and maximum material-call budget,
 phases, fallback condition, and stop conditions. Agents stop once the requested
@@ -251,16 +252,15 @@ unavailable source, staleness concern, or disagreement.
 
 | #   | Category                     | Tools | What's inside                                                                                         |
 | --- | ---------------------------- | ----- | ----------------------------------------------------------------------------------------------------- |
-| 1   | **Market Data & Price**      | 106   | Prices, OHLCV, market caps, derivatives, funding rates, stablecoins, gainers/losers, exchange tickers |
-| 2   | **On-Chain DEX & Pool**      | 64    | DEX pools, liquidity, trending pairs, swap history, bridges, aggregator volumes                       |
-| 3   | **Portfolio & Wallet**       | 77    | Balances, PnL, DeFi positions, swap history, NFT holdings, multi-chain history                        |
-| 4   | **Token & Contract**         | 50    | Token metadata, holders, top traders, ENS resolution, treasury tracking, transfers                    |
-| 5   | **DeFi Protocol**            | 18    | TVL, fees, yield farming, chain metrics, treasuries, emissions                                        |
-| 6   | **NFT Analytics**            | 67    | Collection data, floors, market charts, NFT pools, trait metadata, sales                              |
+| 1   | **Market Data & Price**      | 147   | Prices, OHLCV, market caps, derivatives, funding rates, stablecoins, gainers/losers, exchange tickers |
+| 2   | **On-Chain DEX & Pool**      | 46    | DEX pools, liquidity, trending pairs, swap history, bridges, aggregator volumes                       |
+| 3   | **Portfolio & Wallet**       | 96    | Balances, PnL, DeFi positions, swap history, NFT holdings, multi-chain history                        |
+| 4   | **Token & Contract**         | 40    | Token metadata, holders, top traders, ENS resolution, treasury tracking, transfers                    |
+| 5   | **DeFi Protocol**            | 25    | TVL, fees, yield farming, chain metrics, treasuries, emissions                                        |
+| 6   | **NFT Analytics**            | 59    | Collection data, floors, market charts, NFT pools, trait metadata, sales                              |
 | 7   | **Security & Risk**          | 51    | Honeypot detection, rugpull checks, approval risk, Tenderly simulation, gas estimation                |
-| 8   | **Network & Infrastructure** | 40    | Chain health, blocks, gas prices, supported networks, Solana infrastructure                           |
-| 9   | **Search & Discovery**       | 25    | Cross-provider search, trending coins, categories, token discovery                                    |
-| 10  | **Prediction Markets**       | 21    | Events, markets, prices, trades, traders, holdings, order books, and category filters                 |
+| 8   | **Network & Infrastructure** | 33    | Chain health, blocks, gas prices, supported networks, Solana infrastructure                           |
+| 9   | **Search & Discovery**       | 19    | Cross-provider search, trending coins, categories, token discovery                                    |
 
 Clients that want a smaller, scoped tool surface can connect to a category endpoint directly, e.g. `https://mcp.hiveintelligence.xyz/hive_market_data/mcp` (one per category). Public catalog overview: [www.hiveintelligence.xyz/tools/live-catalog](https://www.hiveintelligence.xyz/tools/live-catalog). Authenticated REST catalog: `https://mcp.hiveintelligence.xyz/api/v1/tools`.
 
@@ -284,7 +284,7 @@ List the top 20 yield pools above 10% APY on Ethereum.
 Show me the portfolio of vitalik.eth across all chains.
 Is this token a honeypot? 0x...   ·   Run a rugpull check on $PEPE.
 What are the current funding rates for BTC perps across exchanges?
-What are the most-traded events on Polymarket this week?
+What is the funding on the tokenized TSLA perp across the RWA venues right now?
 Simulate this transaction before I sign it: <tx hash or calldata>
 ```
 
@@ -386,7 +386,7 @@ hive market price --ids bitcoin,ethereum,solana --vs usd   # prices
 hive defi tvl --protocol aave                              # DeFi TVL
 hive security scan --token 0x...                           # token security
 hive portfolio balance --address 0x...                     # wallet portfolio
-hive tools search "funding rate"                           # search the 607-tool catalog
+hive tools search "funding rate"                           # search the 534-tool catalog
 hive tools call get_price --args '{"ids":"bitcoin","vs_currencies":"usd"}'
 ```
 
@@ -415,15 +415,15 @@ One credit = one material endpoint execution, regardless of provider or response
 
 |                      | Hive    | CoinGecko MCP | Moralis MCP | DeFiLlama MCP | GoPlus only |
 | -------------------- | ------- | ------------- | ----------- | ------------- | ----------- |
-| Provider groups      | **13**  | 1             | 1           | 1             | 1           |
-| Categories           | **10**  | 2             | 3           | 1             | 1           |
-| Total tools          | **607** | ~50           | ~60         | ~15           | ~20         |
+| Provider groups      | **12**  | 1             | 1           | 1             | 1           |
+| Categories           | **9**   | 2             | 3           | 1             | 1           |
+| Total tools          | **534** | ~50           | ~60         | ~15           | ~20         |
 | Market data          | ✓       | ✓             | partial     | –             | –           |
 | DeFi TVL + yields    | ✓       | –             | –           | ✓             | –           |
 | Wallet portfolio     | ✓       | –             | ✓           | –             | –           |
 | Pre-signing security | **✓**   | –             | –           | –             | ✓           |
 | DEX pool analytics   | ✓       | –             | partial     | –             | –           |
-| Prediction markets   | **✓**   | –             | –           | –             | –           |
+| Tokenized RWA perps  | **✓**   | –             | –           | –             | –           |
 | Solana depth (DAS)   | ✓       | –             | –           | –             | –           |
 | Managed (no ops)     | ✓       | ✓             | partial     | varies        | varies      |
 

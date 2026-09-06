@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "purpose": "Public source-of-truth fixture for marketplace review preparation. This is not an OpenAI or Cursor platform manifest.",
   "name": "Hive Intelligence",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "submissionType": "mcp-plus-skills",
   "publicRepository": "https://github.com/hive-intel/hive-sdk",
   "mcp": {
@@ -13,7 +13,7 @@
   },
   "listing": {
     "shortDescription": "Evidence-backed crypto due diligence for agents.",
-    "longDescription": "Connect ChatGPT and Codex to Hive's hosted crypto intelligence MCP and route live research through bounded workflows for markets, tokens, wallets, DeFi, DEX pools, NFTs, Solana, network data, security, and prediction markets. Material calls return provider provenance, freshness context, runtime status, and receipts. Hive-native state changes remain separately routed and require explicit user approval.",
+    "longDescription": "Connect ChatGPT and Codex to Hive's hosted crypto intelligence MCP and route live research through bounded workflows for markets, tokens, wallets, DeFi, DEX pools, NFTs, Solana, network data, and security. Material calls return provider provenance, freshness context, runtime status, and receipts. Hive-native state changes remain separately routed and require explicit user approval.",
     "category": "Finance",
     "logo": "https://www.hiveintelligence.xyz/brand/hive-logo-orange.png",
     "website": "https://www.hiveintelligence.xyz",

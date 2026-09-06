@@ -1,6 +1,6 @@
 ---
 name: hive-query
-description: Default entry point for any live crypto question when Hive MCP is connected — prices, wallets, tokens, DeFi, NFTs, Solana, security, markets, DEX, networks, prediction markets. Use it whenever the answer depends on live or on-chain data instead of answering from memory, even if the user never mentions Hive. Routes intent to a canonical Hive task toolset, then schema lookup and bounded endpoint invocation. If a domain-specific hive-* skill clearly matches, prefer it; if routing cannot surface the exact tool or schema, hand off to hive-tool-discovery.
+description: Default entry point for any live crypto question when Hive MCP is connected — prices, wallets, tokens, DeFi, NFTs, Solana, security, markets, DEX, networks, RWA perps. Use it whenever the answer depends on live or on-chain data instead of answering from memory, even if the user never mentions Hive. Routes intent to a canonical Hive task toolset, then schema lookup and bounded endpoint invocation. If a domain-specific hive-* skill clearly matches, prefer it; if routing cannot surface the exact tool or schema, hand off to hive-tool-discovery.
 license: MIT
 metadata:
   package: "@hiveintelligence/agent-skills"
@@ -54,7 +54,7 @@ without loading the full provider catalog into context.
 | NFT ownership, metadata, floors, sales, rarity | `nft_research` |
 | Blocks, gas, logs, receipts, RPC diagnostics | `network_infrastructure` |
 | Solana wallets, SPL accounts, DAS assets, priority fees | `solana_analysis` |
-| Events, markets, outcomes, traders, holders | `prediction_markets` |
+| Tokenized RWA perps, cross-venue funding, carry, open interest | `rwa_perp_analysis` |
 | Durable monitors, alerts, scheduled reports, agent memory | `stateful_monitoring` |
 | Ambiguous request or schema lookup | `search_discovery` |
 

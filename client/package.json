@@ -1,6 +1,6 @@
 {
   "name": "hive-mcp-client",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Typed client adapter for Hive Intelligence MCP root discovery, metadata, schema lookup, and endpoint invocation.",
   "type": "module",
   "license": "MIT",
