@@ -37,8 +37,8 @@ coverage, not an execution plan.
 ## Procedure
 
 1. Confirm the chain/network id.
-2. Use `filter_networks` when comparing chains by current liquidity,
-   transactions, or volume. Otherwise call `search_tools` for gas, block,
+2. Use `get_networks` to confirm the supported-network list and the exact
+   network identifier. Otherwise call `search_tools` for gas, block,
    transaction, receipt, log, supported-network, or RPC-diagnostic
    capabilities.
 3. Call `get_api_endpoint_schema` for each endpoint before calling it.

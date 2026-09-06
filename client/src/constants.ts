@@ -1,5 +1,5 @@
 export const HIVE_DEFAULT_MCP_URL = "https://mcp.hiveintelligence.xyz/mcp";
-export const HIVE_MCP_CLIENT_VERSION = "0.2.0";
+export const HIVE_MCP_CLIENT_VERSION = "0.3.0";
 
 export const HIVE_CORE_TOOL_NAMES = [
   "search_tools",
@@ -37,7 +37,6 @@ export const HIVE_CATEGORY_TOOL_NAMES = [
   "get_security_risk_endpoints",
   "get_network_infrastructure_endpoints",
   "get_search_discovery_endpoints",
-  "get_prediction_markets_endpoints",
 ] as const;
 
 export const HIVE_REMOVED_CATEGORY_TOOL_NAMES = [
@@ -71,7 +70,6 @@ export const HIVE_PROVIDER_NAMES = [
   "GoPlus",
   "CCXT",
   "Tenderly",
-  "Codex",
   "Hyperliquid",
   "RWA Perps",
   "Hive Archive",
