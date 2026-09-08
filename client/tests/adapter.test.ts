@@ -81,22 +81,22 @@ function createMockClient(): HiveMcpClient {
       const payloads: Record<string, unknown> = {
         "hive://categories": [
           {
-            category: "Prediction Markets",
-            toolName: "get_prediction_markets_endpoints",
+            category: "Network & Infrastructure",
+            toolName: "get_network_infrastructure_endpoints",
           },
         ],
         "hive://providers": {
-          providers: [{ name: "CoinGecko" }, { name: "Codex" }],
+          providers: [{ name: "CoinGecko" }, { name: "Moralis" }],
         },
         "hive://status": { runtimeStatuses: ["ok"] },
         "hive://toolsets": {
-          counts: { totalToolsets: 11 },
+          counts: { totalToolsets: 12 },
           toolsets: [
             {
-              id: "prediction_markets",
-              label: "Prediction Markets",
-              purpose: "Research Polymarket and Kalshi odds.",
-              tags: ["prediction", "polymarket"],
+              id: "network_infrastructure",
+              label: "Network & Infrastructure",
+              purpose: "Inspect mempool congestion, blocks, and RPC health.",
+              tags: ["mempool", "congestion"],
             },
           ],
         },
@@ -762,9 +762,9 @@ describe("hive-mcp-client", () => {
     const snapshot = await readHiveMetadataSnapshot(createMockClient(), {
       forceRefresh: true,
     });
-    expect(rankHiveCategoriesForQuery("polymarket odds", snapshot)[0].toolName).toBe(
-      "get_prediction_markets_endpoints"
-    );
+    expect(
+      rankHiveCategoriesForQuery("mempool congestion", snapshot)[0].toolName
+    ).toBe("get_network_infrastructure_endpoints");
     expect(rankHiveCategoriesForQuery("wallet pnl", snapshot)[0].toolName).toBe(
       "get_portfolio_wallet_endpoints"
     );
@@ -935,18 +935,18 @@ describe("hive-mcp-client", () => {
       definitions,
       selectionMode: "all",
     }).tools.map((tool) => tool.name);
-    expect(allNames).toContain("get_prediction_markets_endpoints");
+    expect(allNames).toContain("get_network_infrastructure_endpoints");
     expect(allNames).not.toContain("get_social_sentiment_endpoints");
 
     const rankedNames = selectHiveMcpToolDefinitions({
       definitions,
       maxCategoryTools: 1,
-      query: "polymarket odds",
+      query: "gas on mainnet",
       selectionMode: "ranked",
     }).tools.map((tool) => tool.name);
     expect(rankedNames).toEqual([
       ...HIVE_CORE_TOOL_NAMES,
-      "get_prediction_markets_endpoints",
+      "get_network_infrastructure_endpoints",
     ]);
   });
 

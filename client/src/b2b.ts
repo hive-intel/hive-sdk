@@ -51,7 +51,6 @@ export type HiveCreateMonitorOptions = {
 
 export type HiveWatchlistDigestTarget = JsonObject & {
   markets?: string[];
-  prediction_markets?: string[];
   protocols?: string[];
   tokens?: string[];
   wallets?: string[];

@@ -26,13 +26,13 @@ describe("createHiveLangChainTools", () => {
 
     expect(names).toEqual([...HIVE_CORE_TOOL_NAMES]);
     expect(names).toContain("search_tools");
-    expect(names).not.toContain("get_prediction_markets_endpoints");
+    expect(names).not.toContain("get_market_and_price_endpoints");
     expect(names).not.toContain("get_social_sentiment_endpoints");
 
     const search = tools.find((tool) => tool.name === "search_tools");
-    await search?.invoke({ query: "polymarket", route_id: "market_odds" });
+    await search?.invoke({ query: "bitcoin price", route_id: "spot_price" });
     expect(client.callTool).toHaveBeenCalledWith({
-      arguments: { query: "polymarket", route_id: "market_odds" },
+      arguments: { query: "bitcoin price", route_id: "spot_price" },
       name: "search_tools",
     });
   });
