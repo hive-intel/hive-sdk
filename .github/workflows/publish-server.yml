@@ -156,7 +156,6 @@ jobs:
           }
           NODE
           node .github/scripts/validate-server-artifact.mjs "$TARBALL" "$RELEASE_MANIFEST"
-          npm publish "$TARBALL" --dry-run --provenance=false --ignore-scripts --access public >/dev/null
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -182,20 +181,32 @@ jobs:
             exit 1
           fi
 
+      # The dry run used to live inside the download step, before the immutable
+      # version check, so a re-run after a successful publish died on "cannot
+      # publish over the previously published versions" and the registry steps
+      # below never ran (1.6.2, 2026-09-14). It only makes sense when there is
+      # still something to publish.
+      - name: Dry-run npm publish
+        if: steps.npm.outputs.already_published != 'true'
+        run: npm publish "${MANIFEST_TARBALL}" --dry-run --provenance=false --ignore-scripts --access public >/dev/null
+
       - name: Publish through npm trusted publishing
         if: steps.npm.outputs.already_published != 'true'
         run: npm publish "${MANIFEST_TARBALL}" --access public --provenance=false
 
+      # npm now processes a publish asynchronously ("may take a few minutes to
+      # become available"); 1.6.2 took longer than the old 30-second poll.
       - name: Confirm published version
         shell: bash
         run: |
-          for attempt in 1 2 3 4 5; do
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
             REMOTE_VERSION="$(npm view "hive-intelligence@${RELEASE_VERSION}" version 2>/dev/null || true)"
             REMOTE_INTEGRITY="$(npm view "hive-intelligence@${RELEASE_VERSION}" dist.integrity 2>/dev/null || true)"
             if test "$REMOTE_VERSION" = "${RELEASE_VERSION}" && test "$REMOTE_INTEGRITY" = '${{ steps.npm.outputs.local_integrity }}'; then
               exit 0
             fi
-            sleep $((attempt * 2))
+            echo "npm does not serve ${RELEASE_VERSION} with the expected integrity yet (attempt ${attempt}/10); waiting $((attempt * 10))s."
+            sleep $((attempt * 10))
           done
           exit 1
 
