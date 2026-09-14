@@ -41,7 +41,7 @@ use an API key from secret storage:
 https://mcp.hiveintelligence.xyz/mcp
 ```
 
-One-click config prefills, URL-only with no key or secret embedded:
+Config prefills, URL-only with no key or secret embedded:
 
 [![Add to Cursor](https://img.shields.io/badge/Add_to-Cursor-000000.svg?logo=cursor)](https://cursor.com/en/install-mcp?name=hive&config=eyJ1cmwiOiJodHRwczovL21jcC5oaXZlaW50ZWxsaWdlbmNlLnh5ei9tY3AifQ==)
 [![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-0098FF?logo=visualstudiocode&logoColor=white)](vscode:mcp/install?%7B%22name%22%3A%22hive%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.hiveintelligence.xyz%2Fmcp%22%7D)

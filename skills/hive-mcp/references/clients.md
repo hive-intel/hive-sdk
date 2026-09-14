@@ -61,7 +61,7 @@ Create `.vscode/mcp.json` or use the MCP user configuration:
 }
 ```
 
-The official one-click form is a `vscode:mcp/install?` URL containing the
+VS Code's own install-link form is a `vscode:mcp/install?` URL containing the
 URL-encoded object `{ "name": "hive", "type": "http", "url": "..." }`.
 The Hive CLI installs workflow skills for Copilot-compatible agents under
 `~/.copilot/skills`.
