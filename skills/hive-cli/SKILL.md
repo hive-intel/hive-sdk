@@ -24,8 +24,8 @@ installer. One install, multiple agent entrypoints.
 If the user doesn't have the CLI installed:
 
 ```bash
-# One-time install + auth
-npx -y -p hive-intelligence@latest hive init --browser
+# One-time install (adds --browser to sign in at the same time)
+npx -y -p hive-intelligence@latest hive init --all --skip-verify --browser
 
 # Or, install globally for repeated use
 npm install -g hive-intelligence

@@ -143,6 +143,15 @@ const FALLBACK_CATEGORY_KEYWORDS: Record<HiveCategoryToolName, string[]> = {
     "category",
     "new",
   ],
+  get_prediction_markets_endpoints: [
+    "prediction market",
+    "prediction markets",
+    "polymarket",
+    "odds",
+    "implied probability",
+    "event market",
+    "outcome",
+  ],
 };
 
 const TOOLSET_TO_CATEGORY: Record<string, HiveCategoryToolName> = {
@@ -151,6 +160,7 @@ const TOOLSET_TO_CATEGORY: Record<string, HiveCategoryToolName> = {
   network_infrastructure: "get_network_infrastructure_endpoints",
   nft_research: "get_nft_analytics_endpoints",
   onchain_dex_pool_analysis: "get_onchain_dex_pool_endpoints",
+  prediction_markets: "get_prediction_markets_endpoints",
   search_discovery: "get_search_discovery_endpoints",
   security_risk: "get_security_risk_endpoints",
   solana_analysis: "get_network_infrastructure_endpoints",

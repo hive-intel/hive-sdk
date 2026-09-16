@@ -24,7 +24,7 @@ If the user has a browser available on the same machine as their
 terminal:
 
 ```bash
-npx -y -p hive-intelligence@latest hive init --browser
+npx -y -p hive-intelligence@latest hive init --all --skip-verify --browser
 ```
 
 What happens:

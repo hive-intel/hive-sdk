@@ -242,8 +242,8 @@ change. `validate_task_result` checks the final envelope and receipt structure;
 it requires claim-to-receipt citations and canonical phase coverage, but cannot
 make invented receipt data authentic.
 
-The long-tail catalog remains discoverable behind that workflow surface: 534
-callable tools across 9 categories.
+The long-tail catalog remains discoverable behind that workflow surface: 546
+callable tools across 10 categories.
 
 Every exact workflow publishes a default and maximum material-call budget,
 phases, fallback condition, and stop conditions. Agents stop once the requested
@@ -386,7 +386,7 @@ hive market price --ids bitcoin,ethereum,solana --vs usd   # prices
 hive defi tvl --protocol aave                              # DeFi TVL
 hive security scan --token 0x...                           # token security
 hive portfolio balance --address 0x...                     # wallet portfolio
-hive tools search "funding rate"                           # search the 534-tool catalog
+hive tools search "funding rate"                           # search the 546-tool catalog
 hive tools call get_price --args '{"ids":"bitcoin","vs_currencies":"usd"}'
 ```
 
@@ -417,7 +417,7 @@ One credit = one material endpoint execution, regardless of provider or response
 | -------------------- | ------- | ------------- | ----------- | ------------- | ----------- |
 | Provider groups      | **12**  | 1             | 1           | 1             | 1           |
 | Categories           | **9**   | 2             | 3           | 1             | 1           |
-| Total tools          | **534** | ~50           | ~60         | ~15           | ~20         |
+| Total tools          | **546** | ~50           | ~60         | ~15           | ~20         |
 | Market data          | ✓       | ✓             | partial     | –             | –           |
 | DeFi TVL + yields    | ✓       | –             | –           | ✓             | –           |
 | Wallet portfolio     | ✓       | –             | ✓           | –             | –           |

@@ -25,10 +25,12 @@ file path and shape vary per client.
   `Authorization: Bearer <HIVE_API_KEY>` from secret storage; `x-api-key` is a
   legacy fallback. Check protected-resource metadata before claiming the
   interactive path is live.
-- **Cost** — one credit per material endpoint execution regardless of payload
-  size. Search, schema lookup, task-result validation, category listing,
-  `tools/list`, and resource reads cost zero credits. 4xx errors don't consume
-  credits; 5xx errors are refunded.
+- **Cost** — discovery tools are free; every other tool costs one credit.
+  Keyed lanes debit only after validation and client resolution, so a
+  validation error or missing provider key costs 0 and a call that reaches the
+  provider costs 1 even when the provider fails. The keyless lane consumes one
+  allowance call per material request, valid or not. Every material response
+  reports `credit_cost`, `credits_used`, and `credits_remaining`.
 
 After hosted OAuth activation, interactive MCP setup does not require the user
 to create or paste an API key. Route to `hive-build-onboarding` for direct CLI,
@@ -41,8 +43,10 @@ If the user is on a machine with multiple MCP-capable clients and just
 wants Hive everywhere:
 
 ```bash
-npx -y -p hive-intelligence@latest hive init --all
+npx -y -p hive-intelligence@latest hive init --all --skip-verify
 ```
+
+`--skip-verify` keeps it non-interactive; add `--browser` to sign in too.
 
 This writes URL-only config for supported local clients and prints the native
 UI steps for clients such as Claude and ChatGPT. When protected-resource

@@ -44,6 +44,18 @@ export type HiveExecutionReceipt = {
   tool: string;
   truncated: boolean;
   warnings: string[];
+  /** Additive since 1.7.0: static credit price of the tool (0 or 1). */
+  credit_cost?: 0 | 1;
+  /** Additive since 1.7.0: credits actually debited for this call. */
+  credits_used?: number;
+  /** Additive since 1.7.0: balance after the call; null means unlimited. */
+  credits_remaining?: number | null;
+  /** Additive since 1.7.0: docs anchor for the error code (errors only). */
+  doc_url?: string;
+  cause?: string;
+  next_action?: string;
+  fallback_used?: boolean;
+  sanitized?: boolean;
 };
 
 export type HiveMcpClientOptions = {

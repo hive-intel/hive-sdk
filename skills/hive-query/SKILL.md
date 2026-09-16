@@ -1,6 +1,6 @@
 ---
 name: hive-query
-description: Default entry point for any live crypto question when Hive MCP is connected — prices, wallets, tokens, DeFi, NFTs, Solana, security, markets, DEX, networks, RWA perps. Use it whenever the answer depends on live or on-chain data instead of answering from memory, even if the user never mentions Hive. Routes intent to a canonical Hive task toolset, then schema lookup and bounded endpoint invocation. If a domain-specific hive-* skill clearly matches, prefer it; if routing cannot surface the exact tool or schema, hand off to hive-tool-discovery.
+description: Use this skill when the hive skill hands off a live crypto question that needs the full task-toolset walk (prices, wallets, tokens, DeFi, NFTs, Solana, security, markets, DEX, networks, RWA perps, prediction markets) and no hero tool answers it in one call. Install hive first; reach for this directly only when the hive pack is absent. Routes intent to a canonical Hive task toolset, then schema lookup and bounded endpoint invocation. If a domain-specific hive-* skill clearly matches, prefer it; if routing cannot surface the exact tool or schema, hand off to hive-tool-discovery.
 license: MIT
 metadata:
   package: "@hiveintelligence/agent-skills"
@@ -55,6 +55,7 @@ without loading the full provider catalog into context.
 | Blocks, gas, logs, receipts, RPC diagnostics | `network_infrastructure` |
 | Solana wallets, SPL accounts, DAS assets, priority fees | `solana_analysis` |
 | Tokenized RWA perps, cross-venue funding, carry, open interest | `rwa_perp_analysis` |
+| Polymarket odds, events, order books, odds history, wallet positions | `prediction_markets` |
 | Durable monitors, alerts, scheduled reports, agent memory | `stateful_monitoring` |
 | Ambiguous request or schema lookup | `search_discovery` |
 

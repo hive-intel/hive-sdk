@@ -37,6 +37,7 @@ export const HIVE_CATEGORY_TOOL_NAMES = [
   "get_security_risk_endpoints",
   "get_network_infrastructure_endpoints",
   "get_search_discovery_endpoints",
+  "get_prediction_markets_endpoints",
 ] as const;
 
 export const HIVE_REMOVED_CATEGORY_TOOL_NAMES = [
@@ -73,6 +74,9 @@ export const HIVE_PROVIDER_NAMES = [
   "Hyperliquid",
   "RWA Perps",
   "Hive Archive",
+  "Polymarket",
+  "Alternative.me",
+  "Blockchain.com",
   "Open Data Fetch",
 ] as const;
 
