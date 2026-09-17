@@ -30,7 +30,8 @@ data.
 5. Call reads through `invoke_api_endpoint`. For an explicitly approved
    Hive-native state change, use `invoke_stateful_endpoint`; never auto-approve
    that router.
-6. Stop when the route's stop condition is met or four material calls are used.
+6. Stop when the route's stop condition is met or its `maxMaterialCalls` (2,
+   3, or 4, depending on the route) is used.
    Copy server-returned `_hive` blocks into the task receipt and run
    `validate_task_result` with the selected `route_id` before presenting a structured result.
 7. Report source recency, provider/runtime status, and missing-data caveats.

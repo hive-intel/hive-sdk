@@ -6,15 +6,15 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "routing"
   requires_network: "true"
-version: 1.7.0
+version: 1.7.1
 ---
 
 # Hive: one skill, all crypto intelligence
 
-Hive answers live crypto questions from 15 data providers through one MCP
-server and one CLI, and every answer carries a receipt: provider, fetch time,
-cache state, runtime status, and digests of the input and result. Three things
-Hive has that most crypto data tools do not:
+Hive answers live crypto questions from more than a dozen data providers
+through one MCP server and one CLI, and every answer carries a receipt:
+provider, fetch time, cache state, runtime status, and digests of the input
+and result. Three things Hive has that most crypto data tools do not:
 
 - **History that venues no longer serve.** Perp funding settlements, open
   interest, basis, long/short ratios, and liquidations for one coin across up
@@ -61,12 +61,12 @@ Version check, once per session on the CLI path:
 npx -y -p hive-intelligence@latest hive --version
 ```
 
-Compare the printed version with this skill's `metadata.version`. When the CLI
-is older, rerun the setup incantation; when the CLI is newer by a minor
+Compare the printed version with this skill's frontmatter `version`. When the
+CLI is older, rerun the setup incantation; when the CLI is newer by a minor
 version, refresh this skill:
 
 ```bash
-npx skills check hive-intel/hive-skills --skill hive
+npx skills add hive-intel/hive-skills --skill hive
 ```
 
 ## First run: the routing block
@@ -79,7 +79,7 @@ CLAUDE.md; only the routing verb does.
 Ask once per project, with AskUserQuestion when available:
 
 > Add a short "Hive MCP Routing" block to this project's AGENTS.md (or
-> CLAUDE.md) so every turn reaches for live crypto data through Hive? About 40
+> CLAUDE.md) so every turn reaches for live crypto data through Hive? About 50
 > lines, removable with `hive routing remove`.
 >
 > A) Add it (recommended)
@@ -153,7 +153,7 @@ Loop:
    have not called before. Read `operation`, required fields, and enums.
 3. `invoke_api_endpoint {"endpoint": "<tool>", "args": {...}}` with `limit`,
    `page`, `per_page`, or `offset` set. Stop at the route's stop condition or
-   at four material calls.
+   at its `maxMaterialCalls`, which is 2, 3, or 4 depending on the route.
 4. Copy each material response's `_hive` block into the receipt, cite receipt
    ids from every material claim, and run `validate_task_result` before
    presenting a typed result.
@@ -186,14 +186,22 @@ Domain namespaces wrap the common tools: `market`, `defi`, `portfolio`,
 `archive` (`coverage`, `funding`, `oi`, `basis`, `long-short`,
 `liquidations`, all taking `--base-coin`). Run `hive <domain> --help`.
 
-Output is the envelope `{ok, data, meta}`; JSON is automatic when stdout is
-not a TTY and forced with `--json`. `--jq '<expr>'` filters `data` in place.
-`meta` carries `credit_cost`, `credits_used`, `credits_remaining`, and the
-`_hive` receipt fields. The human footer prints `credits: used N, remaining M`
-on keyed lanes and `free calls left today: N` keyless.
+Output is the envelope `{ok, data, meta}`, where `error` replaces `data` on a
+failure; JSON is automatic when stdout is not a TTY and forced with `--json`
+(`--pretty` forces human output when piped). `--jq '<expr>'` filters `data` in
+place, but it is a small built-in jq subset (`.field`, `.a.b`, `.[N]`,
+`.[] | select(...)`), not the jq binary. `meta` carries `credit_cost`,
+`credits_used`, `credits_remaining`, and the receipt fields flattened into
+`meta` itself (`receipt_id`, `receipt_version`, `runtime_status`,
+`fetched_at`, `observed_at`, `cache_age_ms`, `source`, `truncated`,
+`warnings`); there is no `_hive` block on this lane. The human footer prints
+`credits: used N, remaining M` on keyed lanes (`remaining unlimited` on an
+unlimited plan) and, keyless, `free calls left today: N` followed by a
+parenthetical pointing at `hive auth login`.
 
-Diagnostics: `hive doctor` (connectivity, auth, and today's keyless
-allowance, read without spending it) and `hive status` (plan and usage).
+Diagnostics: `hive doctor` (connectivity, whether a key is set, and today's
+keyless allowance, read without spending it), `hive status` (version, profile,
+and API reachability), and `hive usage` (plan and usage).
 
 ## Domain guide
 
@@ -252,7 +260,9 @@ or `error.data.code` on a JSON-RPC cap error). Every error carries `cause`,
 | `ANON_QUOTA_EXCEEDED` | MCP, REST, CLI (exit 6) | this IP's 25 keyless calls are spent; resets 00:00 UTC | show the keyless-exhausted message; do not retry |
 | `ANON_GLOBAL_CAP_EXCEEDED` | MCP, REST, CLI (exit 6) | Hive's shared keyless allowance for today is spent | same message; a key is not subject to it |
 | `ANON_AUTH_REQUIRED` | MCP, REST, CLI (exit 6) | `hive_*` state tools need a signed-in account | say so; offer the setup command |
+| `ANON_QUOTA_UNAVAILABLE` | MCP, REST | the keyless limiter is unreachable, so the lane fails closed; nothing was spent | retry once in a few seconds, then offer a key |
 | `QUOTA_EXCEEDED` | MCP, REST, CLI (exit 6) | the account's credits are spent for the period | show the top-up message; do not retry |
+| `QUOTA_SERVICE_UNAVAILABLE` | MCP, REST | the billing service could not debit; nothing was debited | retry once in a few seconds |
 | `NO_WALLET` | MCP, REST, CLI (exit 4) | the account has no credit wallet yet | send the user to the dashboard billing page |
 | `RATE_LIMITED` | all | per-minute limit | wait the `retry_after` seconds, retry once |
 | `VALIDATION_ERROR` | all (exit 2) | an argument is wrong; the message names the field and accepted values | fix the args; `hive tools info <name>` has the table |
@@ -303,10 +313,16 @@ file.
   GeckoTerminal `network` id (`eth`, `base`, `solana`); Alchemy tools take a
   network slug (`eth-mainnet`, `base-mainnet`). Read the schema.
 - Address versus symbol: `get_token_price` takes `token` (id or ticker) or
-  `chain` + `address`, never both. Ambiguous tickers resolve to the
-  highest-cap coin; say which one you used.
-- Solana addresses are auto-detected; do not pass `chain: "eth"` with a
-  base58 address.
+  `chain` + `address`. Pass one, never both: the schema does not reject the
+  pair, it silently takes `address` and drops `token`. A ticker is tried as a
+  CoinGecko id first and retried as a symbol only if that came back empty;
+  there is no market-cap tie-break, so on an ambiguous ticker say which coin
+  the receipt actually returned.
+- Solana addresses are auto-detected by `check_token_safety` and
+  `get_wallet_portfolio` only, and only when `chain` is omitted; an explicit
+  `chain` always wins, so never pass `chain: "eth"` with a base58 address.
+  `get_token_price` does no detection at all: a bare mint defaults to
+  Ethereum, so pass `chain: "solana"` with it.
 - Retired names: `codex_*` and the old Codex-era tool names return
   `TOOL_RETIRED` with the replacement in copyable form. Prediction markets
   are the `polymarket_*` tools since 1.7.0.
@@ -344,7 +360,13 @@ On yes:
 hive feedback "<one line: what was asked, what came back>" --tool <tool-name>
 ```
 
-MCP: `report_feedback {"message": "...", "tool": "<tool-name>", "receipt_id": "<from _hive>"}`.
+MCP: `report_feedback` is not one of the eight root tools, so send it the
+same way as any other endpoint:
+
+```json
+invoke_api_endpoint {"endpoint": "report_feedback", "args": {"message": "...", "tool": "<tool-name>", "receipt_id": "<from _hive>"}}
+```
+
 Free on every lane, ten per day, one line, no keys or wallet addresses in
 the message. The CLI attaches the last receipt automatically when `--receipt`
 is omitted.
