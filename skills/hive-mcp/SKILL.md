@@ -27,10 +27,11 @@ file path and shape vary per client.
   interactive path is live.
 - **Cost** — discovery tools are free; every other tool costs one credit.
   Keyed lanes debit only after validation and client resolution, so a
-  validation error or missing provider key costs 0 and a call that reaches the
-  provider costs 1 even when the provider fails. The keyless lane consumes one
-  allowance call per material request, valid or not. Every material response
-  reports `credit_cost`, `credits_used`, and `credits_remaining`.
+  validation error or missing provider key costs 0, and a call that fails
+  after the debit is refunded, so only a call that succeeds costs 1. The
+  keyless lane takes one allowance call per material request and gives it back
+  when the call fails. Every material response reports `credit_cost`,
+  `credits_used`, and `credits_remaining`.
 
 After hosted OAuth activation, interactive MCP setup does not require the user
 to create or paste an API key. Route to `hive-build-onboarding` for direct CLI,
