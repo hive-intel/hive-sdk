@@ -242,7 +242,7 @@ change. `validate_task_result` checks the final envelope and receipt structure;
 it requires claim-to-receipt citations and canonical phase coverage, but cannot
 make invented receipt data authentic.
 
-The long-tail catalog remains discoverable behind that workflow surface: 546
+The long-tail catalog remains discoverable behind that workflow surface: 525
 callable tools across 10 categories.
 
 Every exact workflow publishes a default and maximum material-call budget,
@@ -252,13 +252,13 @@ unavailable source, staleness concern, or disagreement.
 
 | #   | Category                     | Tools | What's inside                                                                                         |
 | --- | ---------------------------- | ----- | ----------------------------------------------------------------------------------------------------- |
-| 1   | **Market Data & Price**      | 147   | Prices, OHLCV, market caps, derivatives, funding rates, stablecoins, gainers/losers, exchange tickers |
+| 1   | **Market Data & Price**      | 142   | Prices, OHLCV, market caps, derivatives, funding rates, stablecoins, gainers/losers, exchange tickers |
 | 2   | **On-Chain DEX & Pool**      | 46    | DEX pools, liquidity, trending pairs, swap history, bridges, aggregator volumes                       |
-| 3   | **Portfolio & Wallet**       | 96    | Balances, PnL, DeFi positions, swap history, NFT holdings, multi-chain history                        |
+| 3   | **Portfolio & Wallet**       | 93    | Balances, PnL, DeFi positions, swap history, NFT holdings, multi-chain history                        |
 | 4   | **Token & Contract**         | 40    | Token metadata, holders, top traders, ENS resolution, treasury tracking, transfers                    |
-| 5   | **DeFi Protocol**            | 25    | TVL, fees, yield farming, chain metrics, treasuries, emissions                                        |
+| 5   | **DeFi Protocol**            | 19    | TVL, fees, yield farming, chain metrics, treasuries, emissions                                        |
 | 6   | **NFT Analytics**            | 59    | Collection data, floors, market charts, NFT pools, trait metadata, sales                              |
-| 7   | **Security & Risk**          | 51    | Honeypot detection, rugpull checks, approval risk, Tenderly simulation, gas estimation                |
+| 7   | **Security & Risk**          | 48    | Honeypot detection, rugpull checks, approval risk, Tenderly simulation, gas estimation                |
 | 8   | **Network & Infrastructure** | 33    | Chain health, blocks, gas prices, supported networks, Solana infrastructure                           |
 | 9   | **Search & Discovery**       | 19    | Cross-provider search, trending coins, categories, token discovery                                    |
 
@@ -386,7 +386,7 @@ hive market price --ids bitcoin,ethereum,solana --vs usd   # prices
 hive defi tvl --protocol aave                              # DeFi TVL
 hive security scan --token 0x...                           # token security
 hive portfolio balance --address 0x...                     # wallet portfolio
-hive tools search "funding rate"                           # search the 546-tool catalog
+hive tools search "funding rate"                           # search the 525-tool catalog
 hive tools call get_price --args '{"ids":"bitcoin","vs_currencies":"usd"}'
 ```
 
@@ -417,7 +417,7 @@ One credit = one material endpoint execution, regardless of provider or response
 | -------------------- | ------- | ------------- | ----------- | ------------- | ----------- |
 | Provider groups      | **12**  | 1             | 1           | 1             | 1           |
 | Categories           | **9**   | 2             | 3           | 1             | 1           |
-| Total tools          | **546** | ~50           | ~60         | ~15           | ~20         |
+| Total tools          | **525** | ~50           | ~60         | ~15           | ~20         |
 | Market data          | ✓       | ✓             | partial     | –             | –           |
 | DeFi TVL + yields    | ✓       | –             | –           | ✓             | –           |
 | Wallet portfolio     | ✓       | –             | ✓           | –             | –           |
