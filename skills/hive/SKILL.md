@@ -16,9 +16,9 @@ through one MCP server and one CLI, and every answer carries a receipt:
 provider, fetch time, cache state, runtime status, and digests of the input
 and result. Three things Hive has that most crypto data tools do not:
 
-- **History that venues no longer serve.** Perp funding settlements, open
-  interest, basis, long/short ratios, and liquidations for one coin across up
-  to 33 CEX and DEX venues, archived since 2023-11.
+- **History that venues no longer serve.** Perp funding settlements for one
+  coin across up to 33 CEX and DEX venues since 2023-11, plus basis, open
+  interest and liquidations since 2025 and long/short ratios since 2026-03.
 - **Cross-venue views.** One call compares funding or basis across venues
   instead of one exchange at a time.
 - **Provenance you can cite.** The `_hive` block on every material response
@@ -237,13 +237,15 @@ and probability claims are yours and must be labeled as such.
 
 Discovery tools are free; every other tool costs one credit. Keyed lanes debit
 only after validation and client resolution, so a validation error or a
-missing provider key costs 0 and a call that reaches the provider costs 1 even
-when the provider fails. The keyless lane consumes one allowance call per
-material request, valid or not. `report_feedback` is free on every lane.
+missing provider key costs 0, and a call that fails after the debit is
+refunded, so only a call that succeeds costs 1. The keyless lane takes one
+allowance call per material request and gives it back when the call fails.
+`report_feedback` is free on every lane.
 
 Every material response says what it cost: `credit_cost` (0 or 1),
-`credits_used` (what was actually debited), and `credits_remaining` (an
-integer, `null` when unlimited, absent when the lane has no notion of it).
+`credits_used` (what the call cost, 0 when a failed call was refunded), and
+`credits_remaining` (an integer, `null` when unlimited, absent when the lane
+has no notion of it).
 Do not print the balance on every call; mention it when it is low or when the
 user asks.
 
