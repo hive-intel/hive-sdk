@@ -137,7 +137,8 @@ keep the key in the launching process's secret store, never in a shared file.
 
 ## Local stdio fallback
 
-For local-only clients, self-hosting, or provider-key experiments:
+For clients that only launch local processes. The stdio server proxies to the
+hosted MCP and uses the key saved by `hive auth login` (keyless without one):
 
 ```json
 {
@@ -150,5 +151,7 @@ For local-only clients, self-hosting, or provider-key experiments:
 }
 ```
 
-Local stdio does not need `HIVE_API_KEY`; optional upstream provider keys can be
-supplied locally when needed.
+Do not put `HIVE_API_KEY` in this config; run `hive auth login` once instead.
+To self-host with your own upstream provider keys, add `"serve", "--local"` to
+`args` (or set `HIVE_STDIO_MODE=local`) and supply those keys in `env`. Never
+use `npx hive-mcp`: it installs an unrelated npm package.
