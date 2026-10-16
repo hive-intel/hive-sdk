@@ -159,33 +159,36 @@ For automation that cannot open a browser, keep a Hive API key in secret
 storage and send `Authorization: Bearer $HIVE_API_KEY`. Never embed a real key
 in an install link, shared config, screenshot, or repository.
 
-### Local stdio (self-host / desktop / your own provider keys)
+### Local stdio (desktop clients / self-host)
 
-Prefer a local process or your own upstream keys? Run the published CLI as a stdio MCP server:
+For clients that only launch local processes, such as Claude Desktop's
+`claude_desktop_config.json`, run the published CLI as a stdio MCP server. By
+default it proxies to the hosted endpoint, so it serves the same production
+tools and data, authenticated with the key saved by `hive auth login` (keyless
+without one):
 
 ```json
 {
   "mcpServers": {
     "hive": {
       "command": "npx",
-      "args": ["-y", "-p", "hive-intelligence@latest", "hive"],
-      "env": {
-        "COINGECKO_DEMO_API_KEY": "optional",
-        "ALCHEMY_API_KEY": "optional",
-        "HELIUS_API_KEY": "optional",
-        "MORALIS_API_KEY": "optional"
-      }
+      "args": ["-y", "-p", "hive-intelligence@latest", "hive"]
     }
   }
 }
 ```
 
-Local stdio does not use a hosted `HIVE_API_KEY`; configure only the upstream
-provider keys you want that local process to call. Keyless providers remain
-available and providers without credentials stay discoverable with a classified
-`missing_key` runtime status. `hive-intelligence` is a stdio transport (a
-JSON-RPC channel, not an interactive command). For terminal use, see the
-[CLI](#cli).
+Always launch `hive-intelligence@latest`. `npx hive-mcp` installs an unrelated
+npm package, and `npx hive-intelligence` without `@latest` can keep running an
+old version. `hive doctor --fix` repairs configs that do either.
+
+To self-host with your own upstream provider keys, append `"serve", "--local"`
+to `args` (or set `HIVE_STDIO_MODE=local`).
+Local stdio does not use a hosted `HIVE_API_KEY` in that mode; configure only
+the upstream provider keys you want that local process to call. Keyless providers remain available and providers without
+credentials stay discoverable with a classified `missing_key` runtime status.
+`hive-intelligence` is a stdio transport (a JSON-RPC channel, not an
+interactive command). For terminal use, see the [CLI](#cli).
 
 ## Authentication
 
@@ -242,7 +245,7 @@ change. `validate_task_result` checks the final envelope and receipt structure;
 it requires claim-to-receipt citations and canonical phase coverage, but cannot
 make invented receipt data authentic.
 
-The long-tail catalog remains discoverable behind that workflow surface: 525
+The long-tail catalog remains discoverable behind that workflow surface: 523
 callable tools across 10 categories.
 
 Every exact workflow publishes a default and maximum material-call budget,
@@ -386,7 +389,7 @@ hive market price --ids bitcoin,ethereum,solana --vs usd   # prices
 hive defi tvl --protocol aave                              # DeFi TVL
 hive security scan --token 0x...                           # token security
 hive portfolio balance --address 0x...                     # wallet portfolio
-hive tools search "funding rate"                           # search the 525-tool catalog
+hive tools search "funding rate"                           # search the 523-tool catalog
 hive tools call get_price --args '{"ids":"bitcoin","vs_currencies":"usd"}'
 ```
 
@@ -417,7 +420,7 @@ One credit = one material endpoint execution, regardless of provider or response
 | -------------------- | ------- | ------------- | ----------- | ------------- | ----------- |
 | Provider groups      | **12**  | 1             | 1           | 1             | 1           |
 | Categories           | **9**   | 2             | 3           | 1             | 1           |
-| Total tools          | **525** | ~50           | ~60         | ~15           | ~20         |
+| Total tools          | **523** | ~50           | ~60         | ~15           | ~20         |
 | Market data          | ✓       | ✓             | partial     | –             | –           |
 | DeFi TVL + yields    | ✓       | –             | –           | ✓             | –           |
 | Wallet portfolio     | ✓       | –             | ✓           | –             | –           |

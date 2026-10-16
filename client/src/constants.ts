@@ -77,6 +77,7 @@ export const HIVE_PROVIDER_NAMES = [
   "Polymarket",
   "Alternative.me",
   "Blockchain.com",
+  "Blockscout",
   "Open Data Fetch",
 ] as const;
 

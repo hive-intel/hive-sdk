@@ -8,8 +8,9 @@ https://mcp.hiveintelligence.xyz/mcp
 
 After the hosted deployment exposes protected-resource metadata, interactive
 clients should store only this public URL and complete Hive OAuth in the
-browser. Use local `stdio` for Hive development, self-hosting, provider key
-experiments, or clients that cannot use remote Streamable HTTP. Use a Hive API
+browser. Use local `stdio` for clients that cannot use remote Streamable HTTP
+(it proxies to the hosted MCP by default), or `hive serve --local` for
+self-hosting and provider-key experiments. Use a Hive API
 key for headless backends and as the trusted-client fallback while OAuth is not
 active.
 
@@ -79,8 +80,9 @@ prompt, screenshot, or browser bundle.
 
 ## Local stdio MCP
 
-Local stdio does not require a hosted Hive key. Optional upstream provider keys
-belong in the local environment when the user wants provider-key experiments:
+Local stdio proxies to the hosted MCP with the key saved by `hive auth login`
+(keyless without one). For self-hosting with your own upstream provider keys,
+append `"serve", "--local"` to `args` and put those keys in `env`:
 
 ```json
 {

@@ -123,16 +123,23 @@ enablement.
 
 ## Staying current
 
-The hosted MCP endpoint is managed by Hive. Local `stdio` installs should
-keep `hive-intelligence@latest` in the client config so each restart
-re-resolves the newest version. When the server
-instructions or `hive doctor` report that a newer version is available,
-tell the user to run `hive upgrade` (updates a global install and clears
-the npx cache) and then restart the MCP client to load it:
+The hosted MCP endpoint is managed by Hive. Local `stdio` proxies to it by
+default, and its config must launch `hive-intelligence@latest` so each restart
+re-resolves the newest version. Never write `npx hive-mcp`: that name on npm is
+an unrelated package, and on machines with an old global install it runs that
+stale copy instead. When the server instructions or `hive doctor` report that a
+newer version is available, tell the user to run `hive upgrade` (updates a
+global install and clears the npx cache) and then restart the MCP client:
 
 ```bash
 npx -y -p hive-intelligence@latest hive upgrade
 ```
+
+If Hive answers with an old `server_version`, every vendor reports
+`missing_key`, or tools look stale, run `hive doctor`. It flags stale global
+installs, configs that launch `hive-mcp` or the retired
+`https://hiveintelligence.xyz/mcp` URL, and duplicate Hive entries;
+`hive doctor --fix` rewrites them after backing each file up.
 
 ## Common failures
 

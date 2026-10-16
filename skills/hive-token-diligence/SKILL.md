@@ -45,6 +45,8 @@ coverage, not an execution plan.
 5. Start with metadata and market/liquidity checks. Add holder distribution
    and enrichment only when the user needs depth, and security/risk checks
    when the user asks whether to trade, approve, or trust the token.
+   For "how many real holders" questions use `get_token_holder_distribution`
+   (holders by USD tier, dust separated); a raw holder count includes dust.
 6. For supply-dilution or unlock questions, use CoinGecko supply breakdown and
    circulating/total supply charts when the configured plan permits them.
    Report a plan gate instead of substituting market-cap fields.
