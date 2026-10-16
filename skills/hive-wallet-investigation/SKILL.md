@@ -45,7 +45,9 @@ coverage, not an execution plan.
 3. Call `get_api_endpoint_schema` for each endpoint before calling it.
 4. Call `invoke_api_endpoint` with schema-valid, bounded arguments.
 5. Start with balances and native balance. Add transfers for activity
-   questions; add NFTs, DeFi positions, or PnL only when relevant.
+   questions; add NFTs, DeFi positions, or PnL only when relevant. For EVM
+   wallets, `get_wallet_balances`, `get_wallet_pnl`, `get_wallet_trades`, and
+   `get_wallet_transfers` (CoinGecko) cover several chains per call.
 6. Summarize exposure, concentration, notable activity, and missing data.
 
 ## Bounded calls
