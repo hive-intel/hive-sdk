@@ -85,7 +85,7 @@ async def briefing():
         prices, tvl, oi = await asyncio.gather(
             h.execute("get_price",         {"ids": "bitcoin,ethereum"}),
             h.execute("get_protocol_tvl",  {}),
-            h.execute("get_open_interest", {"exchange": "binance"}),
+            h.execute("get_open_interest", {"exchange": "bybit", "symbol": "BTC/USDT:USDT"}),
         )
         return {"prices": prices, "tvl": tvl[:5], "oi": oi}
     finally:
