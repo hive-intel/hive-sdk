@@ -8,7 +8,7 @@
     "source": "github"
   },
   "websiteUrl": "https://hiveintelligence.xyz",
-  "version": "1.11.2",
+  "version": "1.12.1",
   "remotes": [
     {
       "type": "streamable-http",
@@ -33,7 +33,7 @@
     {
       "registryType": "npm",
       "identifier": "hive-intelligence",
-      "version": "1.11.2",
+      "version": "1.12.1",
       "transport": {
         "type": "stdio"
       },
@@ -69,13 +69,6 @@
         {
           "name": "HELIUS_API_KEY",
           "description": "Helius API key (Solana RPC, Digital Asset Standard (DAS), priority fees)",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": true
-        },
-        {
-          "name": "MORALIS_API_KEY",
-          "description": "Moralis API key (EVM wallet, token, NFT analytics)",
           "isRequired": false,
           "format": "string",
           "isSecret": true

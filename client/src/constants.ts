@@ -67,7 +67,6 @@ export const HIVE_PROVIDER_NAMES = [
   "DeFiLlama",
   "Alchemy",
   "Helius",
-  "Moralis",
   "GoPlus",
   "CCXT",
   "Tenderly",
