@@ -86,7 +86,7 @@ function createMockClient(): HiveMcpClient {
           },
         ],
         "hive://providers": {
-          providers: [{ name: "CoinGecko" }, { name: "Moralis" }],
+          providers: [{ name: "CoinGecko" }, { name: "Alchemy" }],
         },
         "hive://status": { runtimeStatuses: ["ok"] },
         "hive://toolsets": {

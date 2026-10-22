@@ -199,10 +199,10 @@ interactive command). For terminal use, see the [CLI](#cli).
 
 ## Powered by
 
-Eleven upstream provider integrations plus Open Data Fetch, normalized into one tool surface:
+Ten upstream provider integrations plus Open Data Fetch, normalized into one tool surface:
 
 ```
-Alchemy · CoinGecko · DeFiLlama · Moralis · GoPlus · Helius · Tenderly · CCXT · Hyperliquid · RWA Perps · Hive Archive · Open Data Fetch
+Alchemy · CoinGecko · DeFiLlama · GoPlus · Helius · Tenderly · CCXT · Hyperliquid · RWA Perps · Hive Archive · Open Data Fetch
 ```
 
 | Provider               | Coverage                                                                                                     |
@@ -210,7 +210,6 @@ Alchemy · CoinGecko · DeFiLlama · Moralis · GoPlus · Helius · Tenderly · 
 | **Alchemy**            | EVM portfolio, token, NFT, transfer, simulation, gas, network data, and Solana DAS                           |
 | **CoinGecko**          | Market data, prices, OHLCV, exchanges, NFT collections, on-chain networks, tokenized RWA markets            |
 | **DeFiLlama**          | TVL, yield pools, protocol metrics, bridges, treasuries                                                      |
-| **Moralis**            | EVM and Solana wallet, token, NFT, DeFi, transfer, and market analytics                                      |
 | **GoPlus**             | Token security, honeypot detection, contract risk, malicious-address reputation                              |
 | **Helius**             | Solana RPC, DAS, compressed NFTs, Parsed Events, priority fees                                               |
 | **Tenderly**           | EVM simulation, gas estimation, traces, contract decode, signatures, storage changes, and transaction ranges |
@@ -245,7 +244,7 @@ change. `validate_task_result` checks the final envelope and receipt structure;
 it requires claim-to-receipt citations and canonical phase coverage, but cannot
 make invented receipt data authentic.
 
-The long-tail catalog remains discoverable behind that workflow surface: 518
+The long-tail catalog remains discoverable behind that workflow surface: 432
 callable tools across 10 categories.
 
 Every exact workflow publishes a default and maximum material-call budget,
@@ -389,7 +388,7 @@ hive market price --ids bitcoin,ethereum,solana --vs usd   # prices
 hive defi tvl --protocol aave                              # DeFi TVL
 hive security scan --token 0x...                           # token security
 hive portfolio balance --address 0x...                     # wallet portfolio
-hive tools search "funding rate"                           # search the 518-tool catalog
+hive tools search "funding rate"                           # search the 432-tool catalog
 hive tools call get_price --args '{"ids":"bitcoin","vs_currencies":"usd"}'
 ```
 
@@ -418,9 +417,9 @@ One credit = one material endpoint execution, regardless of provider or response
 
 |                      | Hive    | CoinGecko MCP | Moralis MCP | DeFiLlama MCP | GoPlus only |
 | -------------------- | ------- | ------------- | ----------- | ------------- | ----------- |
-| Provider groups      | **12**  | 1             | 1           | 1             | 1           |
+| Provider groups      | **11**  | 1             | 1           | 1             | 1           |
 | Categories           | **9**   | 2             | 3           | 1             | 1           |
-| Total tools          | **518** | ~50           | ~60         | ~15           | ~20         |
+| Total tools          | **432** | ~50           | ~60         | ~15           | ~20         |
 | Market data          | ✓       | ✓             | partial     | –             | –           |
 | DeFi TVL + yields    | ✓       | –             | –           | ✓             | –           |
 | Wallet portfolio     | ✓       | –             | ✓           | –             | –           |

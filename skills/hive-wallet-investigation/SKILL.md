@@ -11,9 +11,10 @@ version: 1.4.0
 
 # hive-wallet-investigation — Wallet Investigation
 
-Investigate a wallet's balances, transfers, PnL, NFT exposure, DeFi positions,
-and notable activity with live Hive data, scoped to exactly what the user
-asked.
+Investigate a wallet's balances, transfers, PnL, NFT exposure, approvals, and
+notable activity with live Hive data, scoped to exactly what the user asked.
+Hive has no DeFi-position source: when the user asks for DeFi positions, say
+so and report them as missing data rather than inferring them from balances.
 
 ## Task toolset and identifiers
 
@@ -41,11 +42,11 @@ coverage, not an execution plan.
 
 1. Validate the address format for the requested chain.
 2. Call `search_tools` for wallet balance, native balance, transfer, NFT,
-   DeFi-position, and PnL capabilities as the question requires.
+   and PnL capabilities as the question requires.
 3. Call `get_api_endpoint_schema` for each endpoint before calling it.
 4. Call `invoke_api_endpoint` with schema-valid, bounded arguments.
 5. Start with balances and native balance. Add transfers for activity
-   questions; add NFTs, DeFi positions, or PnL only when relevant. For EVM
+   questions; add NFTs or PnL only when relevant. For EVM
    wallets, `get_wallet_balances`, `get_wallet_pnl`, `get_wallet_trades`, and
    `get_wallet_transfers` (CoinGecko) cover several chains per call.
 6. Summarize exposure, concentration, notable activity, and missing data.
@@ -83,7 +84,7 @@ and did anything big move this week?"
 ## Evidence
 - Balances: [native + top token holdings]
 - Activity: [transfers in window, counterparties]
-- Exposure: [NFTs, DeFi positions, PnL if requested]
+- Exposure: [NFTs, PnL if requested; DeFi positions are not covered]
 - Provenance: [provider, fetched_at, observed_at/cache_age_ms, runtime status per call]
 
 ## Caveats

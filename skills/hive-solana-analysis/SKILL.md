@@ -12,8 +12,9 @@ version: 1.4.0
 # hive-solana-analysis — Solana Analysis
 
 Analyze Solana wallets, mints, SPL accounts, DAS assets, parsed transactions,
-priority fees, and launch data with Solana-native tools — never EVM
-assumptions.
+and priority fees with Solana-native tools — never EVM assumptions. Hive has
+no Pump.fun launch or bonding-curve source; say so when asked rather than
+inferring launch state.
 
 ## Task toolset and identifiers
 
@@ -40,7 +41,7 @@ coverage, not an execution plan.
 1. Classify the identifier: wallet, mint, token account, asset, program, or
    transaction signature.
 2. Call `search_tools` for Solana wallet, SPL token, DAS, parsed-transaction,
-   priority-fee, or launch-data capabilities.
+   or priority-fee capabilities.
 3. Call `get_api_endpoint_schema` for each endpoint before calling it.
 4. Use wallet paths for owner/balance/history questions; mint/asset paths for
    token/NFT questions.
@@ -63,10 +64,10 @@ User: "This pump.fun token is mooning — can you check the mint
 <base58 mint> for safety and who holds it?"
 
 1. Classify: a base58 mint → token/security and asset paths, not wallet paths.
-2. `search_tools` → `{"query": "solana mint token security holders launch data", "limit": 5}`
+2. `search_tools` → `{"query": "solana mint token security holders", "limit": 5}`
 3. `get_api_endpoint_schema` for the mint-security and holder endpoints
    returned, then `invoke_api_endpoint` with schema-valid arguments.
-4. Report safety flags, holder concentration, and launch context with slot or
+4. Report safety flags and holder concentration with slot or
    provider time, `observed_at`/`cache_age_ms`, and Hive retrieval time
    (`fetched_at`).
 
