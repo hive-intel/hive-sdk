@@ -244,7 +244,7 @@ change. `validate_task_result` checks the final envelope and receipt structure;
 it requires claim-to-receipt citations and canonical phase coverage, but cannot
 make invented receipt data authentic.
 
-The long-tail catalog remains discoverable behind that workflow surface: 432
+The long-tail catalog remains discoverable behind that workflow surface: 428
 callable tools across 10 categories.
 
 Every exact workflow publishes a default and maximum material-call budget,
@@ -388,7 +388,7 @@ hive market price --ids bitcoin,ethereum,solana --vs usd   # prices
 hive defi tvl --protocol aave                              # DeFi TVL
 hive security scan --token 0x...                           # token security
 hive portfolio balance --address 0x...                     # wallet portfolio
-hive tools search "funding rate"                           # search the 432-tool catalog
+hive tools search "funding rate"                           # search the 428-tool catalog
 hive tools call get_price --args '{"ids":"bitcoin","vs_currencies":"usd"}'
 ```
 
@@ -419,7 +419,7 @@ One credit = one material endpoint execution, regardless of provider or response
 | -------------------- | ------- | ------------- | ----------- | ------------- | ----------- |
 | Provider groups      | **11**  | 1             | 1           | 1             | 1           |
 | Categories           | **9**   | 2             | 3           | 1             | 1           |
-| Total tools          | **432** | ~50           | ~60         | ~15           | ~20         |
+| Total tools          | **428** | ~50           | ~60         | ~15           | ~20         |
 | Market data          | ✓       | ✓             | partial     | –             | –           |
 | DeFi TVL + yields    | ✓       | –             | –           | ✓             | –           |
 | Wallet portfolio     | ✓       | –             | ✓           | –             | –           |
