@@ -1,6 +1,6 @@
 ---
 name: hive-prediction-markets
-description: Use this skill when the user asks about prediction markets, meaning Polymarket events, markets, outcomes, odds, prices, order books, liquidity, odds history, or a wallet's positions and trades, including "what are the odds of X", "find markets about Y", or Kalshi questions (answer from Polymarket and say Kalshi is not covered). Use it whenever live prediction-market evidence is needed. Never present market probability as ground truth.
+description: Use this skill when the user asks about prediction markets, meaning Polymarket or Kalshi events, markets, outcomes, odds, prices, order books, liquidity, odds history, trades, or a Polymarket wallet's positions and trades, including "what are the odds of X" and "find markets about Y". Use it whenever live prediction-market evidence is needed. Never present market probability as ground truth.
 license: MIT
 metadata:
   package: "@hiveintelligence/agent-skills"
@@ -11,13 +11,11 @@ version: 1.7.0
 
 # hive-prediction-markets: Prediction Markets
 
-Discover and analyze Polymarket prediction markets with prices, order books,
-odds history, and wallet positions and trades, always framed as
-market-implied odds rather than truth. Polymarket's Gamma, CLOB, and Data
-APIs are keyless, so these tools work on the keyless lane. Kalshi is not
-covered: its developer agreement requires a data license Hive does not hold,
-so answer Kalshi questions from Polymarket where a matching market exists and
-say plainly that the Kalshi side is unavailable.
+Discover and analyze Polymarket and Kalshi prediction markets with prices,
+order books, odds history and trades, plus Polymarket wallet positions, always
+framed as market-implied odds rather than truth. Polymarket's Gamma, CLOB, and
+Data APIs and Kalshi's public Trade API are keyless, so these tools work on the
+keyless lane.
 
 ## Task toolset and identifiers
 
@@ -30,6 +28,9 @@ budget, phases, fallback condition, and stop conditions.
   `polymarket_get_price_history` and `polymarket_get_orderbook` (CLOB token
   id), `polymarket_get_wallet_positions` and `polymarket_get_wallet_activity`
   (EVM wallet address).
+- Kalshi: `kalshi_search_markets` (query, status or event ticker),
+  `kalshi_get_events`, and by market ticker `kalshi_get_market`,
+  `kalshi_get_orderbook`, `kalshi_get_trades`, `kalshi_get_price_history`.
 - Required: a market slug, condition id, token id, wallet address, or a
   search query, depending on the request.
 - Optional: status filter, limit, interval, depth, outcome.

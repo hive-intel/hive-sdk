@@ -74,6 +74,7 @@ export const HIVE_PROVIDER_NAMES = [
   "RWA Perps",
   "Hive Archive",
   "Polymarket",
+  "Kalshi",
   "Alternative.me",
   "Blockchain.com",
   "Blockscout",
