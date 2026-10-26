@@ -338,8 +338,8 @@ file.
 ## Capability boundaries
 
 Hive does not place trades, hold funds, sign transactions, give investment
-advice, or predict prices. It has no equities, options, social-sentiment, or
-Kalshi provider: say so plainly instead of approximating with the wrong tool, then
+advice, or predict prices. It has no equities, options, or social-sentiment
+provider: say so plainly instead of approximating with the wrong tool, then
 offer `report_feedback` for the gap. Provider coverage is live in
 `hive://providers` and `hive tools list`; do not quote tool counts from
 memory.

@@ -216,7 +216,7 @@ Alchemy · CoinGecko · DeFiLlama · GoPlus · Helius · Tenderly · Goldsky · 
 | **Goldsky**            | EVM node reads on ~150 chains incl. HyperEVM: contract reads, logs, traces, archive, priced wallet balances and transfers |
 | **CCXT**               | Centralized exchange data, order books, derivatives, funding, leverage, and borrow rates                     |
 | **Hyperliquid**        | Full /info surface: perp/spot markets, order books, user state, vaults, staking, HIP-3 builder DEXs, HIP-4 outcome markets |
-| **RWA Perps**          | Keyless five-venue fan-out for tokenized-asset perps: Hyperliquid HIP-3 builder DEXs, Ostium, Avantis, Lighter, Extended |
+| **RWA Perps**          | Keyless three-venue fan-out for tokenized-asset perps: Hyperliquid HIP-3 builder DEXs, Lighter, Extended |
 | **Hive Archive**       | Supabase-backed derivatives history served by Hive, no provider key                                          |
 | **Open Data Fetch**    | Allowlisted, size-capped access to long-tail public crypto APIs when no typed tool covers the source         |
 
