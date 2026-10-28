@@ -153,7 +153,7 @@ function readyB2BResponse() {
           subject_signing_secret_configured: true,
           valid: true,
         },
-        auth_backend: "unkey",
+        auth_backend: "hosted",
         b2b_adapter_ready: true,
         endpoints: {
           mcp: "/mcp",

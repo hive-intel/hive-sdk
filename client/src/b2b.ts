@@ -114,7 +114,8 @@ export type HiveB2BReadiness = {
     subject_signing_secret_configured: boolean;
     valid: true;
   };
-  auth_backend: "unkey" | "static";
+  /** "unkey" is what servers before 2026-10-26 reported for hosted keys. */
+  auth_backend: "hosted" | "unkey" | "static";
   b2b_adapter_ready: boolean;
   body_digest: {
     algorithm: "SHA-256";
