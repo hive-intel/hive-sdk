@@ -67,7 +67,7 @@
     "pack:check": "npm pack --dry-run"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.32.1",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "zod": "^4.6.7"
   },
   "peerDependencies": {
@@ -79,14 +79,14 @@
     }
   },
   "devDependencies": {
-    "@langchain/core": "^1.2.2",
-    "@types/node": "^24.13.3",
+    "@langchain/core": "^1.3.2",
+    "@types/node": "^24.19.2",
     "tsup": "8.5.1",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   },
   "overrides": {
-    "esbuild": "0.28.1"
+    "esbuild": "0.28.2"
   },
   "engines": {
     "node": ">=22.12.0"
