@@ -14,9 +14,9 @@ version: 1.4.0
 Get the user from "no key" to a verified working key without the secret ever
 appearing in chat, logs, screenshots, or committed files.
 
-Hive uses passwordless magic-link auth — no username/password, no
-credit card to start. Free Demo tier: 10,000 credits/month, 30
-req/min.
+Sign-in is passwordless: GitHub, Google, or a 6-digit code sent by
+email. No credit card to start. Free tier: 10,000 credits/month,
+100 req/min.
 
 ## Path 1 — browser sign-in (preferred)
 
@@ -33,7 +33,7 @@ What happens:
    localhost listener on a random port (`127.0.0.1`).
 2. It opens the user's browser at
    `https://hiveintelligence.xyz/auth/cli?callback_port=<port>&state=<state>`.
-3. The user signs in with magic-link (one-time email link, no
+3. The user signs in with GitHub, Google, or a 6-digit email code (no
    password). If they don't have an account, one is created.
 4. The site issues a fresh API key and redirects the browser to
    `http://127.0.0.1:<port>/callback?key=<key>&email=<email>&state=<state>`.
@@ -53,9 +53,10 @@ container, restricted network):
 
 1. From any machine with a browser, open
    `https://www.hiveintelligence.xyz/dashboard/keys`.
-2. Click "Sign in" and enter the user's email.
-3. Open the magic-link email and click through. Account is created
-   automatically if it doesn't exist.
+2. Click "Sign in" and choose GitHub or Google, or enter the user's
+   email.
+3. For email sign-in, type the 6-digit code from the email into the
+   sign-in page. Account is created automatically if it doesn't exist.
 4. Click "Create key" → name it (e.g., "production-CI") → copy the
    shown secret.
 5. Set `HIVE_API_KEY=hive_live_…` in the headless environment's env.
@@ -72,8 +73,8 @@ The key's prefix tells you the environment:
   capped tools)
 - `hive_dev_` — local development key
 
-The user can have multiple keys. Plan-tier limits: Free = 5 keys,
-Pro = 10, Enterprise = 100.
+The user can have multiple keys: every plan allows 25 active keys
+(revoked keys do not count).
 
 ## When the user can't find an old key
 
@@ -109,11 +110,14 @@ disabled.
 
 If the user wants higher limits than the Free tier, direct them to
 https://www.hiveintelligence.xyz/dashboard/plans — always quote limits and
-prices from that page, since they change. As of August 2026 the tiers are:
+prices from that page, since they change. As of November 2026 the tiers are:
 
-- Free — 10k credits, 30 req/min, 5 keys
-- Pro — $129/month, 500k credits, 500 req/min, 10 keys
-- Enterprise — custom, unlimited credits, 3k req/min, 100 keys
+- Free — 10,000 credits/month, 100 req/min
+- Starter — $49/month, 100,000 credits/month, 300 req/min
+- Pro — $149/month, 500,000 credits/month, 500 req/min
+- Enterprise — custom
+
+Every plan allows 25 active API keys.
 
 ## Runtime status handling
 

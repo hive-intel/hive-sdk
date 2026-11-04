@@ -21,7 +21,6 @@ active.
 | `hive-intelligence` | MCP server, CLI, local stdio runtime, bundled skills installer | End users, self-hosters, desktop clients |
 | `hive-mcp-client` | Published typed adapter for apps and agent frameworks | TypeScript app/backend developers |
 | `@hiveintelligence/agent-skills` | Skills-only corpus for agents and skill registries | Agents and skill package managers |
-| `hive-intel` | Private compatibility CLI/docs workspace; not a public install path | Existing internal compatibility consumers |
 
 ## Recommended setup flow
 
