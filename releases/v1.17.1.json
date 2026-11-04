@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "package": "hive-intelligence",
+  "version": "1.17.1",
+  "tarball": "hive-intelligence-1.17.1.tgz",
+  "sha256": "b1b9b858b56a4d0458fc86b11be7cc4ade339b4513f517937903745699dd40ea",
+  "buildSha": "1535eb707c7c6f42d80b00c33be4527ace6a4d2b",
+  "imageDigest": "sha256:2c337b75ce7d0a3214a66deeadbbab951c684393cc16bb6d3dbcb73cddcd8d24",
+  "deployedUrl": "https://mcp.hiveintelligence.xyz"
+}
