@@ -106,6 +106,6 @@ npx -y -p hive-intelligence@latest hive init --all
 Or install the skills alone from the public registry:
 
 ```bash
-npx skills add hive-intel/hive-skills
-npx skills add hive-intel/hive-skills --list
+npx skills add hive-intel/hive-sdk
+npx skills add hive-intel/hive-sdk --list
 ```

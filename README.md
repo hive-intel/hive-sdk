@@ -344,10 +344,12 @@ adapter-cached. Full API: [`client/README.md`](./client/README.md).
 
 ## Agent skills
 
-Installable [agent skills](https://github.com/hive-intel/hive-skills) teach Claude Code, Cursor, Codex, and other agents the Hive workflow: MCP setup, tool discovery, and live crypto research:
+Installable [agent skills](./skills) teach Claude Code, Cursor, Codex, and other agents the Hive workflow: MCP setup, tool discovery, and live crypto research:
 
 ```bash
-npx skills add hive-intel/hive-skills
+npx skills add hive-intel/hive-sdk                    # every skill
+npx skills add hive-intel/hive-sdk --skill hive --yes  # the front door only
+npx skills add hive-intel/hive-sdk --list              # see what is available
 ```
 
 ### Claude Code, OpenAI / Codex, and Cursor plugin bundle
@@ -447,7 +449,7 @@ Claude Desktop, Claude Code, Cursor, Windsurf, VS Code (Copilot Chat), Codex CLI
 EVM (Ethereum, Arbitrum, Optimism, Base, Polygon, BNB Chain, Avalanche, and 90+ more), Solana with full Helius DAS coverage including compressed NFTs, Bitcoin, and others depending on the provider mix per category.
 
 **Is the source code open?**
-The typed client SDK (`client/`) and the [Hive agent skills](https://github.com/hive-intel/hive-skills) are MIT-licensed and open source. The Hive MCP server that powers `mcp.hiveintelligence.xyz` is a managed, proprietary service.
+The typed client SDK (`client/`) and the [Hive agent skills](./skills) are MIT-licensed and open source. The Hive MCP server that powers `mcp.hiveintelligence.xyz` is a managed, proprietary service.
 
 **How does Hive keep answers trustworthy?**
 Every material result carries provider attribution, source/cache state, runtime status, and a server-minted receipt. Hive separates its own observation time from provider source recency, never silently mixes provider data, and exposes point-in-time parameters where providers support them. See [Security & trust](#security--trust).
@@ -459,7 +461,7 @@ Every material result carries provider attribution, source/cache state, runtime 
 - **Install Guides:** [hiveintelligence.xyz/install](https://hiveintelligence.xyz/install)
 - **CLI Reference:** [hiveintelligence.xyz/cli](https://hiveintelligence.xyz/cli)
 - **Tool Catalog:** [hiveintelligence.xyz/tools/live-catalog](https://hiveintelligence.xyz/tools/live-catalog)
-- **Agent Skills:** [github.com/hive-intel/hive-skills](https://github.com/hive-intel/hive-skills)
+- **Agent Skills:** [github.com/hive-intel/hive-sdk/tree/main/skills](https://github.com/hive-intel/hive-sdk/tree/main/skills)
 
 ## Support
 
