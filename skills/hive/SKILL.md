@@ -6,7 +6,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "routing"
   requires_network: "true"
-version: 1.7.1
+version: 1.18.0
 ---
 
 # Hive: one skill, all crypto intelligence
@@ -55,20 +55,6 @@ Hosted MCP endpoint: `https://mcp.hiveintelligence.xyz/mcp` (Streamable HTTP,
 OAuth in the client browser; headless backends send
 `Authorization: Bearer <HIVE_API_KEY>` from secret storage).
 
-Version check, once per session on the CLI path:
-
-```bash
-npx -y -p hive-intelligence@latest hive --version
-```
-
-Compare the printed version with this skill's frontmatter `version`. When the
-CLI is older, rerun the setup incantation; when the CLI is newer by a minor
-version, refresh this skill:
-
-```bash
-npx skills add hive-intel/hive-skills --skill hive
-```
-
 ## First run: the routing block
 
 Hive is most useful when the project's always-loaded instructions tell every
@@ -116,8 +102,10 @@ CLI path:
 hive tools call get_token_price --token bitcoin
 ```
 
-Second, the question other tools cannot answer, also keyless within the daily
-allowance but keyed in practice because history studies use many calls:
+Second, the question other tools cannot answer. On the MCP path it is keyless
+within the daily allowance. On the CLI path it needs a key: without one, the
+CLI's keyless lane serves only the three hero tools and anything else returns
+`AUTH_REQUIRED`.
 
 ```bash
 hive archive funding --base-coin BTC --limit 5

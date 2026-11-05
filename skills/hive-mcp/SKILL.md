@@ -62,7 +62,7 @@ For agents that support standalone skills, install the Hive skills after MCP
 is connected so the agent also knows the workflow layer:
 
 ```bash
-npx skills add hive-intel/hive-skills
+npx skills add hive-intel/hive-sdk
 ```
 
 Read `references/client-install-matrix.md` when the user asks for install
