@@ -1,7 +1,7 @@
 {
   "name": "hive-sdk",
-  "version": "1.19.0",
-  "description": "Evidence-backed crypto due diligence with sources, freshness, and runtime receipts.",
+  "version": "1.20.1",
+  "description": "Live crypto data for AI agents: nine tools for token search, prices, token safety, token research, wallets, derivatives positioning, the market overview, DeFi yields and prediction markets, each answer citing its sources.",
   "mcpServers": {
     "hive": {
       "httpUrl": "https://mcp.hiveintelligence.xyz/mcp"

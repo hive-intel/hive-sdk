@@ -18,9 +18,9 @@ evidence behind one agent-ready connection.
 
 </div>
 
-> **Try it now, with no account and no key.** The hosted endpoint's anonymous lane
-> answers 25 material calls per IP per day; discovery, schema lookup, and
-> validation are always free:
+> **Connect, then sign in.** Add the hosted endpoint to your client; it opens a
+> browser sign-in (GitHub, Google, or an email code) the first time a tool runs.
+> The Free plan gives 10,000 monthly credits with no card:
 >
 > ```text
 > https://mcp.hiveintelligence.xyz/mcp
@@ -164,8 +164,8 @@ in an install link, shared config, screenshot, or repository.
 For clients that only launch local processes, such as Claude Desktop's
 `claude_desktop_config.json`, run the published CLI as a stdio MCP server. By
 default it proxies to the hosted endpoint, so it serves the same production
-tools and data, authenticated with the key saved by `hive auth login` (keyless
-without one):
+tools and data, authenticated with the key saved by `hive auth login` (tool
+calls ask you to sign in without one):
 
 ```json
 {
@@ -192,8 +192,8 @@ interactive command). For terminal use, see the [CLI](#cli).
 
 ## Authentication
 
-- No key needed to start: the hosted endpoint's anonymous lane answers 25 material calls per IP per day, and discovery/schema/validation calls are always free.
-- Get a key at [hiveintelligence.xyz/dashboard/keys](https://hiveintelligence.xyz/dashboard/keys) when you want your own quota; the Free plan needs no card.
+- Every tool call needs sign-in: OAuth in clients that support it, or an API key. Connecting and listing tools works before you sign in.
+- Get a key at [hiveintelligence.xyz/dashboard/keys](https://hiveintelligence.xyz/dashboard/keys); the Free plan needs no card.
 - Authenticate the hosted endpoint with `Authorization: Bearer hive_live_...` (legacy alias `x-api-key` also works).
 - One key, least privilege: keys are scoped to your plan's rate limit and credits. Rotate or revoke from the dashboard; never commit a key or paste it into client-side code.
 
@@ -222,8 +222,8 @@ Alchemy · CoinGecko · DeFiLlama · GoPlus · Helius · Tenderly · Goldsky · 
 
 ## Tools & discovery
 
-Hive's default contract is a compact eight-tool root: three hero tools for the
-dominant intents, plus a five-tool discovery/execution loop over the full
+Hive's default contract is a compact six-tool root: three hero tools for the
+dominant intents, plus a three-tool discovery/execution loop over the full
 catalog.
 
 | Root tool | What it does |
@@ -231,27 +231,15 @@ catalog.
 | `get_token_price` | Hero: live price for any token (`response_format`: concise or detailed) |
 | `check_token_safety` | Hero: honeypot, rugpull, and contract-risk verdict before anyone signs |
 | `get_wallet_portfolio` | Hero: multi-chain wallet balances and portfolio value |
-| `search_tools` | Find the right task toolset and route across the full catalog (free) |
+| `search_tools` | Find the right tool across the full catalog (free) |
 | `get_api_endpoint_schema` | Inspect exact parameters before executing (free) |
 | `invoke_api_endpoint` | Execute any read endpoint in the catalog |
-| `invoke_stateful_endpoint` | Hive-native state changes; requires explicit user approval |
-| `validate_task_result` | Check the final envelope and receipt structure (free) |
 
-Agents start with compact,
-paginated `search_tools` results, load one exact `hive://toolsets/{id}` workflow,
-inspect `get_api_endpoint_schema`, then call `invoke_api_endpoint` for reads or
-`invoke_stateful_endpoint` after explicit approval for a Hive-native state
-change. `validate_task_result` checks the final envelope and receipt structure;
-it requires claim-to-receipt citations and canonical phase coverage, but cannot
-make invented receipt data authentic.
+Agents start with compact, paginated `search_tools` results, inspect
+`get_api_endpoint_schema`, then call `invoke_api_endpoint` for reads.
 
 The long-tail catalog remains discoverable behind that workflow surface: 435
 callable tools across 10 categories.
-
-Every exact workflow publishes a default and maximum material-call budget,
-phases, fallback condition, and stop conditions. Agents stop once the requested
-decision is supported and call a fallback only to resolve a material gap,
-unavailable source, staleness concern, or disagreement.
 
 | #   | Category                     | Tools | What's inside                                                                                         |
 | --- | ---------------------------- | ----- | ----------------------------------------------------------------------------------------------------- |
@@ -265,7 +253,7 @@ unavailable source, staleness concern, or disagreement.
 | 8   | **Network & Infrastructure** | 33    | Chain health, blocks, gas prices, supported networks, Solana infrastructure                           |
 | 9   | **Search & Discovery**       | 19    | Cross-provider search, trending coins, categories, token discovery                                    |
 
-Clients that want a smaller, scoped tool surface can connect to a category endpoint directly, e.g. `https://mcp.hiveintelligence.xyz/hive_market_data/mcp` (one per category). Public catalog overview: [www.hiveintelligence.xyz/tools/live-catalog](https://www.hiveintelligence.xyz/tools/live-catalog). Authenticated REST catalog: `https://mcp.hiveintelligence.xyz/api/v1/tools`.
+Public catalog overview: [www.hiveintelligence.xyz/tools/live-catalog](https://www.hiveintelligence.xyz/tools/live-catalog). Authenticated REST catalog: `https://mcp.hiveintelligence.xyz/api/v1/tools`.
 
 ## Security & trust
 
@@ -364,7 +352,7 @@ Global flags include `--json`, `--pretty`, `--jq <expr>`, `--csv`, `--fields`, `
 | **Pro**        | 500,000         | 500 req/min    | 25       | $149/mo |
 | **Enterprise** | Custom          | Custom req/min | 25       | Custom  |
 
-One credit = one material endpoint execution, regardless of provider or response size. `search_tools`, `get_api_endpoint_schema`, `validate_task_result`, MCP `tools/list`, MCP resource reads, and authenticated `GET /api/v1/tools` are free. Full pricing: [hiveintelligence.xyz/pricing](https://hiveintelligence.xyz/pricing) · machine-readable: [hiveintelligence.xyz/pricing.md](https://hiveintelligence.xyz/pricing.md).
+One credit = one material endpoint execution, regardless of provider or response size. `search_tools`, `get_api_endpoint_schema`, MCP `tools/list`, MCP resource reads, and authenticated `GET /api/v1/tools` are free. Full pricing: [hiveintelligence.xyz/pricing](https://hiveintelligence.xyz/pricing) · machine-readable: [hiveintelligence.xyz/pricing.md](https://hiveintelligence.xyz/pricing.md).
 
 ## Why Hive over a single-provider MCP?
 
@@ -387,7 +375,7 @@ Single-provider MCPs win on niche depth. Hive wins when the agent needs **broad 
 ## FAQ
 
 **What does an API key cost?**
-Nothing to start: the anonymous lane needs no key at all (25 material calls per IP per day), and the Free plan adds 10,000 monthly credits with no card required. Paid plans start at $49/month (Starter, 100K credits); Pro is $149/month for 500K. [Get a key](https://hiveintelligence.xyz/dashboard/keys).
+Nothing to start: the Free plan gives 10,000 monthly credits with no card required. Paid plans start at $49/month (Starter, 100K credits); Pro is $149/month for 500K. [Get a key](https://hiveintelligence.xyz/dashboard/keys).
 
 **Hosted vs local stdio: which should I use?**
 Hosted (`https://mcp.hiveintelligence.xyz/mcp`) is recommended for most integrations: no local server, Hive runs auth, rate limits, and provider infrastructure. Use local stdio for desktop setups, self-hosting, or your own upstream provider keys.

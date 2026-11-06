@@ -1,32 +1,30 @@
 {
-  "name": "hive-sdk",
+  "name": "hive-intelligence",
   "displayName": "Hive Intelligence",
-  "version": "1.19.0",
-  "description": "One hosted MCP connection and bundled workflows for evidence-backed crypto due diligence, with sources, freshness, and runtime receipts.",
+  "version": "1.20.1",
+  "description": "Crypto data for AI agents. Find tokens, get prices, check token safety, research a token, analyze a wallet, read market positioning and the market overview, and look up DeFi yields and prediction markets through Hive's hosted MCP server. Sign in with a free Hive account on first use.",
   "author": {
     "name": "Hive Intelligence",
     "email": "support@hiveintelligence.xyz"
   },
   "publisher": "Hive Intelligence",
-  "homepage": "https://www.hiveintelligence.xyz/install",
+  "homepage": "https://www.hiveintelligence.xyz",
   "repository": "https://github.com/hive-intel/hive-sdk",
   "license": "MIT",
-  "logo": "https://www.hiveintelligence.xyz/brand/hive-logo-orange.png",
+  "logo": "assets/logo.svg",
   "keywords": [
     "mcp",
     "crypto",
-    "blockchain",
-    "defi",
-    "wallet-intelligence",
-    "token-security",
     "market-data",
-    "due-diligence"
+    "token-safety",
+    "wallet",
+    "defi",
+    "prediction-markets"
   ],
   "category": "data",
   "tags": [
     "finance",
     "research",
-    "security",
     "onchain"
   ],
   "skills": "./skills/",
