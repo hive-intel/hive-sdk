@@ -3,7 +3,7 @@
   "mcpServers": {
     "hive": {
       "type": "streamable-http",
-      "url": "https://mcp.hiveintelligence.xyz/mcp"
+      "url": "https://mcp.hiveintelligence.xyz/mcp?via=plugin-hermes"
     }
   }
 }

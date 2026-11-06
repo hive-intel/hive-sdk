@@ -7,7 +7,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "setup"
   requires_network: "true"
-version: 1.20.1
+version: 1.20.2
 ---
 
 # Hive setup
@@ -25,8 +25,8 @@ Hive is one hosted MCP server, a CLI and the `hive` skill:
 npx -y -p hive-intelligence@latest hive init --all --skip-verify
 ```
 
-It registers the hosted URL in every detected client and copies the Hive
-skills. Never run bare `hive init` from an agent: it is interactive and exits 1
+It registers the hosted URL in every detected client, installs the `hive`
+CLI globally (skip with `--skip-global`), and installs the Hive skills. Never run bare `hive init` from an agent: it is interactive and exits 1
 in a shell without a terminal. Add `--browser` only when the user wants to
 sign the CLI in now.
 
@@ -49,7 +49,11 @@ No browser to click means an API key:
    the environment (`hive research-token PEPE --json`).
 
 For the CLI: `hive auth login` signs in through the browser and stores the
-credential; `HIVE_API_KEY` in the environment also works.
+credential; `HIVE_API_KEY` in the environment also works. With no browser on
+the machine (SSH, CI, a container), `hive auth login --device` prints a code
+and a link. Give both to the person, who approves the code on any device; the
+CLI waits and stores the credential. `hive auth login` picks this on its own
+when it detects no browser.
 
 ## Runtime status handling
 
@@ -96,7 +100,7 @@ hive uninstall
 ```
 
 removes Hive entries from client configs it can safely locate, prints the
-steps for clients configured in their own UI, and deletes the copied skills.
+steps for clients configured in their own UI, and deletes the installed skills.
 
 ## Stay current
 
