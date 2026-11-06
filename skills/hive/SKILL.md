@@ -1,12 +1,12 @@
 ---
 name: hive
-description: Use this skill for any live crypto question and for Hive setup, on MCP or the hive CLI. Covers current market, on-chain, wallet, token-safety, DeFi, NFT, Solana, prediction-market, and derivatives data, plus the questions other crypto data tools cannot answer, meaning perp funding settlement history across 33 venues since 2023-11, cross-venue basis and open interest history, and a provenance receipt on every answer. Triggers on "what is X trading at", "is this token safe", "what does this wallet hold", "funding history for BTC since 2024", "odds on Polymarket", "set up Hive", "hive CLI", and any live crypto data request. Never answer live crypto questions from memory when Hive is available.
+description: Use this skill for any live crypto question and for Hive setup, on MCP or the hive CLI. Covers current market, on-chain, wallet, token-safety, DeFi, NFT, Solana, prediction-market, and derivatives data, plus the questions other crypto data tools cannot answer, meaning perp funding settlement history across 35 venues since March 2025, cross-venue basis and open interest history, and a provenance receipt on every answer. Triggers on "what is X trading at", "is this token safe", "what does this wallet hold", "funding history for BTC since 2025", "odds on Polymarket", "set up Hive", "hive CLI", and any live crypto data request. Never answer live crypto questions from memory when Hive is available.
 license: MIT
 metadata:
   package: "@hiveintelligence/agent-skills"
   category: "routing"
   requires_network: "true"
-version: 1.18.0
+version: 1.19.0
 ---
 
 # Hive: one skill, all crypto intelligence
@@ -16,9 +16,11 @@ through one MCP server and one CLI, and every answer carries a receipt:
 provider, fetch time, cache state, runtime status, and digests of the input
 and result. Three things Hive has that most crypto data tools do not:
 
-- **History that venues no longer serve.** Perp funding settlements for one
-  coin across up to 33 CEX and DEX venues since 2023-11, plus basis, open
-  interest and liquidations since 2025 and long/short ratios since 2026-03.
+- **History that venues no longer serve.** Perp funding settlements and basis
+  for one coin across up to 35 CEX and DEX venues since March 2025, plus open
+  interest since January 2026, long/short ratios since March 2026, and
+  Binance, Bybit and OKX liquidations since late October 2026, as events or
+  hourly and daily totals.
 - **Cross-venue views.** One call compares funding or basis across venues
   instead of one exchange at a time.
 - **Provenance you can cite.** The `_hive` block on every material response
@@ -108,7 +110,7 @@ CLI's keyless lane serves only the three hero tools and anything else returns
 `AUTH_REQUIRED`.
 
 ```bash
-hive archive funding --base-coin BTC --limit 5
+hive tools call archive_get_funding_history --base-coin BTC --limit 5
 ```
 
 MCP: `invoke_api_endpoint {"endpoint": "archive_get_funding_history", "args": {"base_coin": "BTC", "limit": 5}}`.
@@ -169,11 +171,6 @@ hive tools call <tool-name> --args '{"...": "..."}'  # or JSON; flags win over -
 hive tools call get_price --ids bitcoin --vs-currencies usd --json | jq '.data'
 ```
 
-Domain namespaces wrap the common tools: `market`, `defi`, `portfolio`,
-`security`, `exchange`, `dex`, `wallet`, `nft`, `network`, `search`, and
-`archive` (`coverage`, `funding`, `oi`, `basis`, `long-short`,
-`liquidations`, all taking `--base-coin`). Run `hive <domain> --help`.
-
 Output is the envelope `{ok, data, meta}`, where `error` replaces `data` on a
 failure; JSON is automatic when stdout is not a TTY and forced with `--json`
 (`--pretty` forces human output when piped). `--jq '<expr>'` filters `data` in
@@ -188,8 +185,9 @@ unlimited plan) and, keyless, `free calls left today: N` followed by a
 parenthetical pointing at `hive auth login`.
 
 Diagnostics: `hive doctor` (connectivity, whether a key is set, and today's
-keyless allowance, read without spending it), `hive status` (version, profile,
-and API reachability), and `hive usage` (plan and usage).
+keyless allowance, read without spending it) and `hive status` (version,
+profile, and API reachability). Plan and usage are on the dashboard Usage page,
+https://www.hiveintelligence.xyz/dashboard/usage.
 
 ## Domain guide
 
@@ -214,7 +212,7 @@ required identifiers, and stop conditions.
 
 Setup and integration packs: `hive-mcp` (client config), `hive-cli`
 (terminal and cron), `hive-build-onboarding` (account and key),
-`hive-build` (app code via REST or `hive-mcp-client`). `hive-query` is the
+`hive-build` (app code via MCP or REST). `hive-query` is the
 compact routing procedure this skill loads when a question needs the full
 toolset walk.
 
@@ -344,22 +342,22 @@ auto-submit:
   `search_tools` or `hive tools search`). Ask: "Want me to log this as a
   data request?"
 
-On yes:
-
-```bash
-hive feedback "<one line: what was asked, what came back>" --tool <tool-name>
-```
-
-MCP: `report_feedback` is not one of the eight root tools, so send it the
-same way as any other endpoint:
+On yes, send `report_feedback`. It is not one of the eight root tools, so on
+MCP send it the same way as any other endpoint:
 
 ```json
 invoke_api_endpoint {"endpoint": "report_feedback", "args": {"message": "...", "tool": "<tool-name>", "receipt_id": "<from _hive>"}}
 ```
 
+CLI path, which needs a key (the CLI's keyless lane serves only the three hero
+tools):
+
+```bash
+hive tools call report_feedback --message "<one line: what was asked, what came back>" --tool <tool-name> --receipt-id <receipt_id>
+```
+
 Free on every lane, ten per day, one line, no keys or wallet addresses in
-the message. The CLI attaches the last receipt automatically when `--receipt`
-is omitted.
+the message.
 
 ## Evidence receipt (required)
 

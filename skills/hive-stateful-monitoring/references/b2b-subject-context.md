@@ -35,12 +35,6 @@ and send the headers:
 Derive `tenantId` and `endUserId` from backend auth state, server-side. Never
 let the model invent subject ids, signing headers, or timestamps.
 
-## TypeScript backends
-
-Use `hive-mcp-client` (`npm install hive-mcp-client`) with
-`subjectSigningSecret` and per-call `subject`/`withSubject(...)` context
-instead of hand-building these headers.
-
 ## Subject administration tools
 
 Use `hive_list_subjects`, `hive_get_subject`, `hive_archive_subject`, and

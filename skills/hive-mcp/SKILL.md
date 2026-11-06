@@ -128,11 +128,11 @@ default, and its config must launch `hive-intelligence@latest` so each restart
 re-resolves the newest version. Never write `npx hive-mcp`: that name on npm is
 an unrelated package, and on machines with an old global install it runs that
 stale copy instead. When the server instructions or `hive doctor` report that a
-newer version is available, tell the user to run `hive upgrade` (updates a
-global install and clears the npx cache) and then restart the MCP client:
+newer version is available, tell the user to update the global install, if
+there is one, and then restart the MCP client:
 
 ```bash
-npx -y -p hive-intelligence@latest hive upgrade
+npm install -g hive-intelligence@latest
 ```
 
 If Hive answers with an old `server_version`, every vendor reports
