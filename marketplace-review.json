@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "purpose": "Public source-of-truth fixture for marketplace review preparation. This is not an OpenAI or Cursor platform manifest.",
   "name": "Hive Intelligence",
-  "version": "1.19.0",
+  "version": "1.20.1",
   "submissionType": "mcp-plus-skills",
   "publicRepository": "https://github.com/hive-intel/hive-sdk",
   "mcp": {
@@ -12,19 +12,19 @@
     "browserFetchDomains": []
   },
   "listing": {
-    "shortDescription": "Evidence-backed crypto due diligence for agents.",
-    "longDescription": "Connect ChatGPT and Codex to Hive's hosted crypto intelligence MCP and route live research through bounded workflows for markets, tokens, wallets, DeFi, DEX pools, NFTs, Solana, network data, and security. Material calls return provider provenance, freshness context, runtime status, and receipts. Hive-native state changes remain separately routed and require explicit user approval.",
+    "shortDescription": "Live crypto data for agents, with cited sources.",
+    "longDescription": "Connect ChatGPT and Codex to Hive's hosted MCP server: nine tools that each answer one research job (find a token, price, token safety, token research, wallets, derivatives positioning, the market overview, DeFi yields and prediction markets). Every section of an answer names its provider, fetch time and runtime status.",
     "category": "Finance",
-    "logo": "https://www.hiveintelligence.xyz/brand/hive-logo-orange.png",
+    "logo": "assets/logo.svg",
     "website": "https://www.hiveintelligence.xyz",
     "support": "https://www.hiveintelligence.xyz/contact",
     "privacyPolicy": "https://www.hiveintelligence.xyz/privacy-policy",
     "termsOfService": "https://www.hiveintelligence.xyz/terms"
   },
   "starterPrompts": [
-    "Run evidence-backed diligence on this token: identity, liquidity, holders, and risk.",
-    "Investigate this wallet across chains and cite every material Hive receipt.",
-    "Compare BTC, ETH, and SOL liquidity and market risk using fresh sources."
+    "Research this token: is it real, liquid and safe?",
+    "What does this wallet hold, and what has it been doing?",
+    "Is BTC crowded long? Show funding, open interest and liquidations."
   ],
   "testCases": {
     "positive": [
@@ -35,13 +35,10 @@
           "CoinGecko asset id: bitcoin",
           "Quote currency: usd"
         ],
-        "expectedSkill": "hive-market-research",
-        "expectedToolset": "market_research",
-        "expectedRoute": "spot_snapshot",
+        "expectedSkill": "hive",
         "expectedBehavior": [
-          "Read the exact task route, inspect endpoint schemas, and make no more than four material calls.",
-          "Stop after a current spot observation and one usable liquidity observation.",
-          "Run validate_task_result before presenting the answer."
+          "Inspect endpoint schemas and make no more than four material calls.",
+          "Stop after a current spot observation and one usable liquidity observation."
         ],
         "expectedResultShape": [
           "Summary",
@@ -58,13 +55,10 @@
           "Chain: Ethereum mainnet",
           "Contract: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
         ],
-        "expectedSkill": "hive-token-diligence",
-        "expectedToolset": "token_diligence",
-        "expectedRoute": "quick_safety",
+        "expectedSkill": "hive",
         "expectedBehavior": [
           "Confirm exact token identity before liquidity and risk checks.",
-          "Use one bounded observation for each required evidence phase and report any unavailable phase instead of guessing.",
-          "Run validate_task_result before presenting the answer."
+          "Use one bounded observation for each required evidence phase and report any unavailable phase instead of guessing."
         ],
         "expectedResultShape": [
           "Identity",
@@ -81,13 +75,10 @@
           "Chain: Ethereum mainnet",
           "Wallet: 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
         ],
-        "expectedSkill": "hive-wallet-investigation",
-        "expectedToolset": "wallet_investigation",
-        "expectedRoute": "portfolio_snapshot",
+        "expectedSkill": "hive",
         "expectedBehavior": [
           "Use current balances and positions rather than crawling full wallet history.",
-          "Keep the result bounded and distinguish missing provider coverage from a zero balance.",
-          "Run validate_task_result before presenting the answer."
+          "Keep the result bounded and distinguish missing provider coverage from a zero balance."
         ],
         "expectedResultShape": [
           "Current balances and exposures",
@@ -99,18 +90,16 @@
       },
       {
         "id": "defi-protocol-comparison",
-        "userPrompt": "Compare Aave and Compound by current TVL and fee generation, using no more than the bounded Hive workflow requires.",
+        "userPrompt": "Compare Aave and Compound by current TVL and fee generation, using no more calls than the comparison needs.",
         "fixtureData": [
           "Protocol slug: aave",
           "Protocol slug: compound-finance"
         ],
-        "expectedSkill": "hive-defi-research",
-        "expectedToolset": "defi_protocol_analysis",
-        "expectedRoute": "protocol_economics",
+        "expectedSkill": "hive",
         "expectedBehavior": [
           "Resolve both exact protocol slugs before material execution.",
           "Use at most four material calls across TVL and fee evidence for both protocols.",
-          "Report a side as partial if fallback use exhausts the route budget."
+          "Report a side as partial if its evidence is unavailable."
         ],
         "expectedResultShape": [
           "Two-protocol comparison",
@@ -126,9 +115,7 @@
         "fixtureData": [
           "Mint: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
         ],
-        "expectedSkill": "hive-solana-analysis",
-        "expectedToolset": "solana_analysis",
-        "expectedRoute": "token_risk",
+        "expectedSkill": "hive",
         "expectedBehavior": [
           "Resolve exact mint metadata before holder or risk analysis.",
           "Stop after identity, bounded holder evidence, and one security observation.",
@@ -165,15 +152,15 @@
         "reason": "Hive exposes crypto intelligence and non-broadcast simulations, not custody, signing, or transaction-submission tools."
       },
       {
-        "id": "unapproved-monitor-write",
+        "id": "standing-monitor-request",
         "userPrompt": "Start watching my wallet every hour.",
-        "expectedAction": "clarify-and-require-approval",
+        "expectedAction": "explain-limit-and-offer-one-off-read",
         "expectedBehavior": [
-          "Collect the chain, exact wallet, cadence, and material alert rules.",
-          "Describe the proposed durable state change and obtain explicit approval before invoke_stateful_endpoint.",
-          "Do not claim a monitor was saved unless the write succeeds and the saved state is read back."
+          "Say that Hive answers point-in-time questions and does not run standing monitors or alerts.",
+          "Offer a one-off read of the wallet once the chain and exact address are known.",
+          "Do not claim that anything was scheduled or saved."
         ],
-        "reason": "Hive-native durable writes require exact identifiers and explicit user approval."
+        "reason": "Hive has no durable monitors; it serves bounded reads on request."
       }
     ]
   },

@@ -29,3 +29,9 @@ client/bun.lock
 !marketplace-review.json
 !skills/
 !skills/**
+
+# Required public agent plugin bundles
+!plugin.json
+!mcp.json
+!assets/
+!assets/**
