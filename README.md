@@ -14,7 +14,7 @@ evidence behind one agent-ready connection.
 [![Cursor setup](https://img.shields.io/badge/Cursor-Setup-000000.svg?logo=cursor)](https://www.hiveintelligence.xyz/install/cursor)
 [![VS Code setup](https://img.shields.io/badge/VS_Code-Setup-0098FF?logo=visualstudiocode&logoColor=white)](https://www.hiveintelligence.xyz/install/vs-code)
 
-[**Connect**](#connect) · [**Tools**](#tools--discovery) · [**Security**](#security--trust) · [**SDK**](#typescript-sdk--hive-mcp-client) · [**CLI**](#cli) · [**Pricing**](#pricing) · [**FAQ**](#faq) · [**Get an API key**](https://hiveintelligence.xyz/dashboard/keys)
+[**Connect**](#connect) · [**Tools**](#tools--discovery) · [**Security**](#security--trust) · [**CLI**](#cli) · [**Pricing**](#pricing) · [**FAQ**](#faq) · [**Get an API key**](https://hiveintelligence.xyz/dashboard/keys)
 
 </div>
 
@@ -275,7 +275,7 @@ Crypto answers are only useful if they're trustworthy. Hive is built for that:
 - **Point-in-time, not drift.** Time-series tools accept `at` / `block_number` so agents answer historical questions without quietly defaulting to "latest."
 - **Security-first tools.** `get_token_security`, `detect_rugpull`, approval-risk, and Tenderly transaction simulation return structured risk flags so an agent can check _before_ a user signs.
 - **Least privilege & prompt-injection awareness.** Use a scoped key per environment and rotate from the dashboard. As with any tool-using agent, treat on-chain text (token names, memos) as untrusted input. Hive returns structured fields rather than free-form instructions to reduce injection surface.
-- **No client-side keys.** Keep your Hive key server-side; browser UIs should call your own backend, which uses the key (see the [SDK](#typescript-sdk--hive-mcp-client) B2B subject sessions).
+- **No client-side keys.** Keep your Hive key server-side; browser UIs should call your own backend, which uses the key.
 
 ## Example prompts
 
@@ -292,55 +292,6 @@ Simulate this transaction before I sign it: <tx hash or calldata>
 ```
 
 More workflow guides: [hiveintelligence.xyz/use-cases](https://hiveintelligence.xyz/use-cases).
-
-## TypeScript SDK: `hive-mcp-client`
-
-Call Hive from your own agent or backend without wiring MCP by hand. The typed client ships on npm and in [`client/`](./client):
-
-```bash
-npm install hive-mcp-client
-```
-
-```ts
-import { createHiveMcpClient, invokeHiveEndpoint } from "hive-mcp-client";
-
-const hive = await createHiveMcpClient({
-  apiKey: process.env.HIVE_API_KEY,
-  clientName: "my-app",
-});
-
-const result = await invokeHiveEndpoint(hive, "get_price", {
-  ids: "bitcoin",
-  vs_currencies: "usd",
-});
-console.log(result.json ?? result.text);
-await hive.close();
-```
-
-`invokeHiveEndpoint` is intentionally read-only and already returns a
-normalized result. It rejects known Hive state-changing endpoints. After your
-application shows the exact effect and receives explicit user approval, call
-the separately named `invokeHiveStatefulEndpoint`; never derive approval from
-model output or tool arguments:
-
-```ts
-import { invokeHiveStatefulEndpoint } from "hive-mcp-client";
-
-if (!(await approvalUi.confirm({ endpointName, args }))) {
-  throw new Error("User declined the Hive state change");
-}
-
-const saved = await invokeHiveStatefulEndpoint(hive, endpointName, args);
-```
-
-Use `normalizeHiveToolResult` only when you call the lower-level
-`client.callTool()` method directly.
-
-Includes Vercel AI SDK and LangChain adapters, plus B2B subject sessions for
-multi-tenant backends. LangChain stateful tools are disabled unless the app
-supplies `approveStatefulCall({ endpointName, args })`; the callback must return
-the user's explicit approval, and material stateful invocations are never
-adapter-cached. Full API: [`client/README.md`](./client/README.md).
 
 ## Agent skills
 
@@ -387,10 +338,9 @@ listing is live.
 The `hive` CLI is a thin terminal client over the same API. Set `HIVE_API_KEY` (or run `hive auth login` once):
 
 ```bash
-hive market price --ids bitcoin,ethereum,solana --vs usd   # prices
-hive defi tvl --protocol aave                              # DeFi TVL
-hive security scan --token 0x...                           # token security
-hive portfolio balance --address 0x...                     # wallet portfolio
+hive tools call get_token_price --token bitcoin            # a price
+hive tools call check_token_safety --address 0x...         # token safety
+hive tools call get_wallet_portfolio --address 0x...       # wallet portfolio
 hive tools search "funding rate"                           # search the 435-tool catalog
 hive tools call get_price --args '{"ids":"bitcoin","vs_currencies":"usd"}'
 ```
@@ -449,7 +399,7 @@ Claude Desktop, Claude Code, Cursor, Windsurf, VS Code (Copilot Chat), Codex CLI
 EVM (Ethereum, Arbitrum, Optimism, Base, Polygon, BNB Chain, Avalanche, and 90+ more), Solana with full Helius DAS coverage including compressed NFTs, Bitcoin, and others depending on the provider mix per category.
 
 **Is the source code open?**
-The typed client SDK (`client/`) and the [Hive agent skills](./skills) are MIT-licensed and open source. The Hive MCP server that powers `mcp.hiveintelligence.xyz` is a managed, proprietary service.
+The [Hive agent skills](./skills) are MIT-licensed and open source. The Hive MCP server that powers `mcp.hiveintelligence.xyz` is a managed, proprietary service.
 
 **How does Hive keep answers trustworthy?**
 Every material result carries provider attribution, source/cache state, runtime status, and a server-minted receipt. Hive separates its own observation time from provider source recency, never silently mixes provider data, and exposes point-in-time parameters where providers support them. See [Security & trust](#security--trust).

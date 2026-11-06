@@ -21,7 +21,6 @@ instead. If they're adding Hive to an MCP-capable client, route to
 
 ## Integration path
 
-- **TypeScript / custom app default** — `hive-mcp-client` (`npm install hive-mcp-client`)
 - **MCP transport** — `https://mcp.hiveintelligence.xyz/mcp`
 - **REST fallback base** — `https://mcp.hiveintelligence.xyz/api/v1`
 - **REST execute** — `POST /execute` with `{"tool": "...", "args": {...}}`
@@ -100,60 +99,28 @@ unavailable source, staleness concern, or disagreement.
 
 ### TypeScript (Node, serverless, edge)
 
-Prefer the typed MCP adapter for TypeScript applications when you control the
-server application. It centralizes the root MCP contract, auth headers, schema
-lookup, endpoint invocation, retries, metadata resources, and normalized result
-parsing.
-
-`invokeHiveEndpoint` is deliberately read-only. For a known Hive-native write,
-show the exact effect to the user, obtain approval in trusted application UI,
-then call `invokeHiveStatefulEndpoint`. LangChain stateful tools require the
-application callback
-`approveStatefulCall({ endpointName, args }): boolean | Promise<boolean>`;
-without it they are disabled. Never implement the callback as unconditional
-approval or derive consent from model output. Stateful material calls are never
-adapter-cached.
-
-```bash
-npm install hive-mcp-client
-```
-
 ```ts
-import {
-  createHiveMcpClient,
-  getHiveEndpointSchema,
-  invokeHiveEndpoint,
-  readHiveMetadataSnapshot,
-} from "hive-mcp-client";
-
-export async function getBtcPrice() {
-  const hive = await createHiveMcpClient({
-    apiKey: process.env.HIVE_API_KEY,
-    clientName: "my-app",
-    retry: { attempts: 2, baseDelayMs: 500 },
+export async function hive(tool: string, args: Record<string, unknown> = {}) {
+  const res = await fetch("https://mcp.hiveintelligence.xyz/api/v1/execute", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.HIVE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ tool, args }),
+    signal: AbortSignal.timeout(30_000),
   });
-
-  try {
-    const schema = await getHiveEndpointSchema(hive, "get_price");
-    const result = await invokeHiveEndpoint(hive, "get_price", {
-      ids: "bitcoin",
-      vs_currencies: "usd",
-    });
-    const metadata = await readHiveMetadataSnapshot(hive);
-
-    return {
-      schema,
-      result,
-      metadataStatus: metadata.status,
-    };
-  } finally {
-    await hive.close();
-  }
+  if (!res.ok) throw new Error(`hive ${res.status}: ${await res.text()}`);
+  return res.json();
 }
+
+console.log(await hive("get_price", { ids: "bitcoin", vs_currencies: "usd" }));
 ```
 
 Keep `HIVE_API_KEY` server-side. For browser UI, call your own backend route
-and never expose a full Hive key to the client.
+and never expose a full Hive key to the client. For a Hive-native write, show
+the exact effect to the user and obtain approval in trusted application UI
+before you send it; never derive consent from model output.
 
 ### Go (`net/http`)
 
@@ -265,16 +232,8 @@ throw ExhaustedRetries()
 
 ## Tool discovery
 
-Don't hardcode tool schemas. In TypeScript, use the adapter:
-
-```ts
-import { searchHiveTools, getHiveEndpointSchema } from "hive-mcp-client";
-
-const matches = await searchHiveTools(hive, { query: "token security", limit: 20 });
-const schema = await getHiveEndpointSchema(hive, "get_token_security");
-```
-
-For REST fallback clients, fetch at runtime:
+Don't hardcode tool schemas. Over MCP, call `search_tools` and
+`get_api_endpoint_schema`. For REST clients, fetch at runtime:
 
 ```http
 GET /api/v1/tools?search=wallet&limit=200
@@ -295,14 +254,13 @@ POST /api/v1/execute
 
 ## Frameworks
 
-- **LangChain** — use `hive-mcp-client/langchain` or
-  `langchain-mcp-adapters` to expose Hive tools. Connect to
-  `https://mcp.hiveintelligence.xyz/mcp` with the auth header.
+- **LangChain** — use `langchain-mcp-adapters` to expose Hive tools.
+  Connect to `https://mcp.hiveintelligence.xyz/mcp` with the auth header.
 - **CrewAI** — same pattern; CrewAI accepts MCP servers via the
   generic adapter.
-- **Vercel AI SDK** — use `hive-mcp-client/ai-sdk` helpers to
-  build the MCP transport config and select only the compact/ranked Hive tools
-  the model needs.
+- **Vercel AI SDK** — same pattern: point its MCP client at
+  `https://mcp.hiveintelligence.xyz/mcp` with the auth header and pass the
+  model only the Hive tools it needs.
 - **Spring Boot** — register the Java `HiveClient` as a `@Bean`,
   inject into services, wrap with Resilience4j for retries.
 
@@ -349,7 +307,6 @@ temporarily gated; surface the state and retry or fall back based on the class.
 
 ## Reference
 
-- TypeScript MCP client: https://www.npmjs.com/package/hive-mcp-client
 - Full API integration guide: https://www.hiveintelligence.xyz/api-integration
 - SDK pages: https://www.hiveintelligence.xyz/sdk
 - Errors: https://www.hiveintelligence.xyz/errors
