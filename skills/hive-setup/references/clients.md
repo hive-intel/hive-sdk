@@ -135,6 +135,16 @@ Complete Hive authorization in the browser. Hive workflow skills install under
 browser, `bearer_token_env_var = "HIVE_API_KEY"` remains an explicit fallback;
 keep the key in the launching process's secret store, never in a shared file.
 
+## Hermes Agent
+
+```bash
+hermes mcp add hive --url https://mcp.hiveintelligence.xyz/mcp --auth oauth --connect-timeout 300
+```
+
+Hermes opens the Hive sign-in page in the browser once and stores the tokens
+itself. Nothing is installed and no Hive code runs. `hermes mcp login hive`
+signs in again later.
+
 ## Local stdio fallback
 
 For clients that only launch local processes. The stdio server proxies to the
@@ -145,7 +155,7 @@ hosted MCP and uses the key saved by `hive auth login` (keyless without one):
   "mcpServers": {
     "hive-local": {
       "command": "npx",
-      "args": ["-y", "-p", "hive-intelligence@latest", "hive"]
+      "args": ["-y", "-p", "hive-intelligence@1.20.2", "hive"]
     }
   }
 }
