@@ -19,16 +19,30 @@ Hive is one hosted MCP server, a CLI and the `hive` skill:
   OAuth open a sign-in page on first use (GitHub, Google or an emailed code).
   The Free plan has 10,000 credits a month.
 
+## Hermes Agent
+
+Hermes connects with one command and runs no Hive code:
+
+```bash
+hermes mcp add hive --url https://mcp.hiveintelligence.xyz/mcp --auth oauth --connect-timeout 300
+```
+
+It opens the Hive sign-in page once. Prefer this on Hermes over the command
+below.
+
 ## One command for every client on this machine
 
 ```bash
-npx -y -p hive-intelligence@latest hive init --all --skip-verify
+npx -y -p hive-intelligence@1.20.2 hive init --all --skip-verify
 ```
 
-It registers the hosted URL in every detected client, installs the `hive`
-CLI globally (skip with `--skip-global`), and installs the Hive skills. Never run bare `hive init` from an agent: it is interactive and exits 1
-in a shell without a terminal. Add `--browser` only when the user wants to
-sign the CLI in now.
+This changes the machine in three ways: it adds Hive to the config of every AI
+client it detects, installs the `hive` CLI globally with npm (skip with
+`--skip-global`), and installs the Hive skills (skip with `--skip-skills`). Tell
+the user exactly that and get an explicit yes before running it; for one
+client, use the next section instead. Never run bare `hive init` from an
+agent: it is interactive and exits 1 in a shell without a terminal. Add
+`--browser` only when the user wants to sign the CLI in now.
 
 ## One client
 
@@ -79,12 +93,9 @@ hive doctor
 
 ## Skills
 
-```bash
-npx skills add hive-intel/hive-sdk
-```
-
-installs `hive` (used automatically for crypto questions) and this setup
-skill.
+The `hive` skill (used automatically for crypto questions) and this setup
+skill come with the Hive plugin for your client, or with the one command above.
+Nothing else needs installing.
 
 ## Optional: project routing block
 
@@ -104,10 +115,12 @@ steps for clients configured in their own UI, and deletes the installed skills.
 
 ## Stay current
 
-The hosted server updates itself. A local stdio config must launch
-`hive-intelligence@latest`. Never write `npx hive-mcp`: that npm name belongs
-to an unrelated package. To update a global CLI:
+The hosted server updates itself. A global CLI or a local stdio config stays on
+the version it was installed with; to upgrade, install the newer version by its
+number from the Hive changelog (https://docs.hiveintelligence.xyz/reference/changelog):
 
 ```bash
-npm install -g hive-intelligence@latest
+npm install -g hive-intelligence@1.20.2
 ```
+
+Never write `npx hive-mcp`: that npm name belongs to an unrelated package.
