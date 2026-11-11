@@ -6,7 +6,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "routing"
   requires_network: "true"
-version: 1.20.4
+version: 1.20.5
 ---
 
 # Hive
@@ -110,8 +110,8 @@ one exchange's order book or a transaction trace (use the catalog below).
   ```
 
 - Use `hive` when it is on PATH. Otherwise run the same command as
-  `npx -y -p hive-intelligence@1.20.4 hive <command>`, for example
-  `npx -y -p hive-intelligence@1.20.4 hive price ETH`.
+  `npx -y -p hive-intelligence@1.20.5 hive <command>`, for example
+  `npx -y -p hive-intelligence@1.20.5 hive price ETH`.
 - Neither a shell nor Hive tools: Hive is not installed. Ask the user to run `/hive-setup`.
 
 Every data call needs a signed-in account or an API key. The first call in a

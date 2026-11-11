@@ -1,6 +1,6 @@
 {
   "name": "hive-sdk",
-  "version": "1.20.4",
+  "version": "1.20.5",
   "description": "Live crypto data for AI agents: nine tools for token search, prices, token safety, token research, wallets, derivatives positioning, the market overview, DeFi yields and prediction markets, each answer citing its sources.",
   "author": {
     "name": "Hive Intelligence",
