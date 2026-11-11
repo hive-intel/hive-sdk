@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "hive-intelligence",
-  "version": "1.20.3",
+  "version": "1.20.4",
   "description": "Crypto data for AI agents: token search, prices, token safety, token research, wallet analysis, market positioning, market overview, DeFi yields and prediction markets through Hive's hosted MCP server, plus the hive and hive-setup skills.",
   "author": {
     "name": "Hive Intelligence",
