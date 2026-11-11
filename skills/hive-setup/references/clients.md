@@ -155,7 +155,7 @@ hosted MCP and uses the key saved by `hive auth login` (keyless without one):
   "mcpServers": {
     "hive-local": {
       "command": "npx",
-      "args": ["-y", "-p", "hive-intelligence@1.20.5", "hive"]
+      "args": ["-y", "-p", "hive-intelligence@1.20.6", "hive"]
     }
   }
 }
