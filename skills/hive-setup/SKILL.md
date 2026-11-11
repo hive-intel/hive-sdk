@@ -7,7 +7,7 @@ metadata:
   package: "@hiveintelligence/agent-skills"
   category: "setup"
   requires_network: "true"
-version: 1.20.5
+version: 1.20.6
 ---
 
 # Hive setup
@@ -33,7 +33,7 @@ below.
 ## One command for every client on this machine
 
 ```bash
-npx -y -p hive-intelligence@1.20.5 hive init --all --skip-verify
+npx -y -p hive-intelligence@1.20.6 hive init --all --skip-verify
 ```
 
 This changes the machine in three ways: it adds Hive to the config of every AI
@@ -120,7 +120,7 @@ the version it was installed with; to upgrade, install the newer version by its
 number from the Hive changelog (https://docs.hiveintelligence.xyz/reference/changelog):
 
 ```bash
-npm install -g hive-intelligence@1.20.5
+npm install -g hive-intelligence@1.20.6
 ```
 
 Never write `npx hive-mcp`: that npm name belongs to an unrelated package.
